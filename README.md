@@ -66,8 +66,9 @@ The "View vehicle policy" button on Home opens the signed WildTrust Vehicle and 
 ## Data model, in short
 
 - Entries, uploaded report files (in-memory for the session), and captured slip photos are stored **locally on the device** until you tap **Sync**
-- **Sync** groups entries by month and writes each month to its own Sheet, matching the real Fuel & Toll attachment layout finance already uses: one column per slip, stacked fields (Date, Station, KM Reading, Fuel/Oil, Toll, Total Amount, Driver, Vote Number), sorted left-to-right by date - not a spreadsheet-style row table
-- **Upload** pushes any not-yet-uploaded slip photos to Drive
+- **Sync** now also uploads any not-yet-uploaded slip photos automatically as part of the same tap, before writing the Sheet - the standalone Upload button still exists if you want to push photos without a full sync
+- **Sync** groups entries by month and writes each month to its own Sheet, matching the real Fuel & Toll attachment layout finance already uses: one column per slip, each cell combining its label and value together (e.g. `DATE : 2026-07-08`, `STATION: Engen Ushaka`) - not a spreadsheet-style row table, and not split across a separate label column
+- The **Receipt** row is a clickable "View photo" link straight to the slip's file in Drive - not an inline thumbnail, since rendering a thumbnail in Sheets would require making the file link-shareable, which we don't do by default to keep fuel slips private
 - Vote number is always a manual search-and-pick — never auto-filled — same for driver and project, which are always typed by hand, on purpose
 - There is currently **no shared team view** — each person's synced data lives in their own Drive
 

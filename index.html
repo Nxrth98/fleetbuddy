@@ -936,6 +936,9 @@ function saveEntry(){
   const amount=$('fAmount').value, date=$('fDate').value;
   if(!amount || parseFloat(amount)<=0){ toast('Add the amount'); $('fAmount').focus(); return; }
   if(!date){ toast('Add the date'); $('fDate').focus(); return; }
+  const list=getEntries(currentVeh.reg);
+  const existing = editingId ? list.find(x=>x.id===editingId) : null;
+  const photoChanged = !existing || existing.slipImage !== photoData;
   const e={
     id: editingId || uid(),
     type:capType, date, amount,
@@ -946,10 +949,9 @@ function saveEntry(){
     voteNum: voteChosen?voteChosen.number:'',
     voteDesc: voteChosen?voteChosen.description:'',
     slipImage: photoData || null,
-    slipDriveId: null,
     createdAt: Date.now()
   };
-  const list=getEntries(currentVeh.reg);
+  if(photoChanged){ e.slipDriveId=null; e.slipViewLink=null; }
   if(editingId){
     const i=list.findIndex(x=>x.id===editingId);
     if(i>=0) list[i]={...list[i], ...e};
@@ -1008,36 +1010,41 @@ async function uploadSlipImage(e, folderId){
   fd.append('metadata', new Blob([JSON.stringify({name,parents:[folderId]})],{type:'application/json'}));
   fd.append('file', new Blob([arr],{type:'image/jpeg'}));
   try{
-    const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
+    const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',
       {method:'POST', headers:{Authorization:'Bearer '+token}, body:fd});
     const d=await r.json();
-    if(d.id) return {ok:true,id:d.id};
+    if(d.id) return {ok:true, id:d.id, link:d.webViewLink||`https://drive.google.com/file/d/${d.id}/view`};
     return {ok:false, reason:d.error?.message||('HTTP '+r.status)};
   }catch(err){ return {ok:false, reason:err.message}; }
 }
-const ROW_LABELS = ['DATE :','STATION:','KM READING:','FUEL / OIL:','TOLL:','TOTAL AMOUNT:','DRIVER :','VOTE NUMBER :'];
+const ROW_LABELS = ['DATE :','STATION:','KM READING:','FUEL / OIL:','TOLL:','TOTAL AMOUNT:','DRIVER :','VOTE NUMBER :','RECEIPT :'];
 function cardColumnOf(e){
   const amt = parseFloat(e.amount)||0;
+  const fuel = e.type==='Fuel' ? amt.toFixed(2) : '';
+  const toll = e.type==='Toll' ? amt.toFixed(2) : '';
+  const receiptLabel = 'RECEIPT : ' + (e.slipViewLink ? 'View photo' : (e.slipImage ? 'Not yet uploaded' : ''));
+  const receipt = e.slipViewLink ? `=HYPERLINK("${e.slipViewLink}","${receiptLabel}")` : receiptLabel;
   return [
-    e.date||'',
-    e.station||'',
-    e.km||'',
-    e.type==='Fuel' ? amt.toFixed(2) : '',
-    e.type==='Toll' ? amt.toFixed(2) : '',
-    amt.toFixed(2),
-    e.driver||'',
-    e.voteNum||''
+    `${ROW_LABELS[0]} ${e.date||''}`.trim(),
+    `${ROW_LABELS[1]} ${e.station||''}`.trim(),
+    `${ROW_LABELS[2]} ${e.km||''}`.trim(),
+    `${ROW_LABELS[3]} ${fuel}`.trim(),
+    `${ROW_LABELS[4]} ${toll}`.trim(),
+    `${ROW_LABELS[5]} ${amt.toFixed(2)}`.trim(),
+    `${ROW_LABELS[6]} ${e.driver||''}`.trim(),
+    `${ROW_LABELS[7]} ${e.voteNum||''}`.trim(),
+    receipt
   ];
 }
 function buildCardGrid(reg, ym, list){
   const [year, monthNum] = ym.split('-');
   const monthName = new Date(Number(year), Number(monthNum)-1, 1).toLocaleDateString('en-ZA',{month:'long'});
   const title = `PETROL SLIPS THE MONTH OF ${monthName.toUpperCase()} YEAR ${year} REG NO ${reg}`;
-  const cols = list.map(cardColumnOf); // each: array of 8 values, one per entry
+  const cols = list.map(cardColumnOf); // each: array of 9 combined "LABEL : value" cells, one column per slip
   const grid = [[title]];
   grid.push(['']);
-  for(let r=0;r<8;r++){
-    grid.push([ROW_LABELS[r], ...cols.map(c=>c[r])]);
+  for(let r=0;r<9;r++){
+    grid.push(cols.map(c=>c[r]));
   }
   return grid;
 }
@@ -1061,12 +1068,31 @@ async function writeVehicleSheet(reg, ym, list){
   // clear a generous range - column count grows with number of slips, so clear wide
   await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/Recon!A1:BZ50:clear`,{method:'POST'});
   const grid=buildCardGrid(reg, ym, list);
-  const lastCol = list.length + 1; // +1 for the label column
+  const lastCol = Math.max(list.length, 1); // one column per slip, no separate label column
   const colLetter = n => { let s=''; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; };
   const range = `Recon!A1:${colLetter(lastCol)}${grid.length}`;
-  await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${range}?valueInputOption=RAW`,
+  await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${range}?valueInputOption=USER_ENTERED`,
     {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:grid})});
   return id;
+}
+
+async function uploadPendingSlipPhotos(reg){
+  const all=getEntries(reg);
+  const todo=all.filter(e=>e.slipImage && !e.slipDriveId);
+  if(!todo.length) return {uploaded:0, failed:0, firstFail:null};
+  const byMonth={};
+  todo.forEach(e=>{ const ym=(e.date||'').slice(0,7) || new Date().toISOString().slice(0,7); (byMonth[ym]=byMonth[ym]||[]).push(e); });
+  let n=0, failed=0, firstFail=null;
+  for(const ym of Object.keys(byMonth)){
+    const folder=await driveFolder(['FleetBuddy', reg, ym, 'slips']);
+    for(const e of byMonth[ym]){
+      const res=await uploadSlipImage(e, folder);
+      if(res.ok){ e.slipDriveId=res.id; e.slipViewLink=res.link; n++; }
+      else { failed++; if(!firstFail) firstFail=res.reason; }
+    }
+  }
+  setEntries(reg, all);
+  return {uploaded:n, failed, firstFail};
 }
 
 async function syncVehicle(){
@@ -1075,6 +1101,8 @@ async function syncVehicle(){
   $('syncStatus').textContent='Syncing\u2026';
   try{
     const reg=currentVeh.reg;
+    // upload any pending slip photos first, so receipt links are ready before the sheet is written
+    await uploadPendingSlipPhotos(reg);
     const all=getEntries(reg);
     // group by year-month so late/out-of-order uploads still land in the right tab
     const byMonth={};
@@ -1112,23 +1140,11 @@ async function uploadSlipPhotos(){
   const b=$('bUpload'); b.disabled=true; b.textContent='\u2026';
   try{
     const reg=currentVeh.reg;
-    const all=getEntries(reg);
-    const todo=all.filter(e=>e.slipImage && !e.slipDriveId);
-    if(!todo.length){ toast('No new slip photos to upload'); }
-    else{
-      const ym=new Date().toISOString().slice(0,7);
-      const folder=await driveFolder(['FleetBuddy', reg, ym, 'slips']);
-      let n=0, firstFail=null;
-      for(const e of todo){
-        const res=await uploadSlipImage(e, folder);
-        if(res.ok){ e.slipDriveId=res.id; n++; }
-        else if(!firstFail) firstFail=res.reason;
-      }
-      setEntries(reg, all);
-      if(n>0 && !firstFail) toast(n+' slip photos uploaded to Drive');
-      else if(n>0) toast(`${n} uploaded, ${todo.length-n} failed - ${firstFail}`);
-      else toast('Upload failed - '+(firstFail||'unknown error'));
-    }
+    const res=await uploadPendingSlipPhotos(reg);
+    if(res.uploaded===0 && res.failed===0) toast('No new slip photos to upload');
+    else if(res.uploaded>0 && res.failed===0) toast(res.uploaded+' slip photos uploaded to Drive');
+    else if(res.uploaded>0) toast(`${res.uploaded} uploaded, ${res.failed} failed - ${res.firstFail}`);
+    else toast('Upload failed - '+(res.firstFail||'unknown error'));
   }catch(e){ toast('Upload failed - '+e.message); }
   b.disabled=false; b.textContent='Upload';
 }
