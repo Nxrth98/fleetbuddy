@@ -55,16 +55,16 @@ That's it — open the link, sign in, you're in.
 
 ---
 
-## Fleet gallery photos
+## Vehicle policy
 
-The gallery screen looks for images at `/images/{REG}-1.jpg` and `/images/{REG}-2.jpg` (reg number, spaces stripped, uppercase). Create an `images` folder in this repo and drop photos in with the matching filename — no code changes needed, missing files just show a placeholder icon. Full filename list is in an HTML comment directly above the gallery code in `index.html`.
+The "View vehicle policy" button on Home opens the signed WildTrust Vehicle and Travel Policy PDF, embedded right in the app. The file lives at `policy/WildTrust-Vehicle-and-Travel-Policy.pdf` in this repo - already included. Replace that file (same filename) whenever the policy is updated; no code changes needed.
 
 ---
 
 ## Data model, in short
 
 - Entries, uploaded report files (in-memory for the session), and captured slip photos are stored **locally on the device** until you tap **Sync**
-- **Sync** groups entries by month and writes each month to its own tab in that vehicle's Google Sheet, sorted by date — safe even if reports arrive out of order through the month
+- **Sync** groups entries by month and writes each month to its own Sheet, matching the real Fuel & Toll attachment layout finance already uses: one column per slip, stacked fields (Date, Station, KM Reading, Fuel/Oil, Toll, Total Amount, Driver, Vote Number), sorted left-to-right by date - not a spreadsheet-style row table
 - **Upload** pushes any not-yet-uploaded slip photos to Drive
 - Vote number is always a manual search-and-pick — never auto-filled — same for driver and project, which are always typed by hand, on purpose
 - There is currently **no shared team view** — each person's synced data lives in their own Drive

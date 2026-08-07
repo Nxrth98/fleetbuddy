@@ -205,19 +205,7 @@
 
   .sticky{position:sticky;bottom:0;padding:18px 0 calc(14px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(5,7,11,0) 0%,var(--page) 42%);margin-top:8px}
 
-  .fleet-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px}
-  .fleet-card{background:var(--card);border:1px solid var(--field-line);border-radius:16px;overflow:hidden}
-  .fleet-imgs{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--field-line)}
-  .fleet-img-slot{aspect-ratio:1;background:var(--field);position:relative;overflow:hidden}
-  .fleet-img-slot img{width:100%;height:100%;object-fit:cover;display:block}
-  .fleet-ph{width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:var(--ink-3)}
-  .fleet-ph svg{width:22px;height:22px}
-  .fleet-cap{padding:10px 12px 12px}
-  .fleet-reg{font-size:13px;font-weight:660;letter-spacing:-.01em}
-  .fleet-model{font-size:11px;color:var(--ink-3);margin-top:2px}
-  .fleet-note{background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-md);padding:16px 18px;margin-bottom:20px;font-size:13px;color:var(--ink-2);line-height:1.55}
-  .fleet-note b{color:var(--ink);font-weight:660}
-  .fleet-note code{background:var(--field);padding:2px 6px;border-radius:5px;font-size:12px;color:var(--green-mid)}
+  .policy-note{background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-md);padding:16px 18px;margin-bottom:20px;font-size:13px;color:var(--ink-2);line-height:1.55}
 
   .auth-wrap{padding-top:18vh;text-align:center}
   .auth-kick{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
@@ -320,25 +308,27 @@
   <div id="vehList"></div>
 
   <div class="sticky">
-    <button class="btn btn-ghost" onclick="goFleet()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>
-      View fleet
+    <button class="btn btn-ghost" onclick="goPolicy()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      View vehicle policy
     </button>
   </div>
 </div>
 
-<div id="screen-fleet" class="screen">
+<div id="screen-policy" class="screen">
   <div class="topbar">
     <button class="icon-btn" onclick="goHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
-    <div class="topbar-mid"><h2>Fleet gallery</h2><p>16 vehicles - 2 photos each</p></div>
+    <div class="topbar-mid"><h2>Vehicle policy</h2><p>WildTrust Vehicle and Travel Policy</p></div>
     <div class="spacer-44"></div>
   </div>
 
-  <div class="fleet-note">
-    <b>Placeholder gallery.</b> Drop real photos into an <code>/images</code> folder next to the app, named to match each vehicle. See the HTML comment above the gallery script for the exact filename each slot expects - rename your photo, drop it in, delete the old one. No code changes needed.
+  <div class="policy-note">
+    Full signed policy document, embedded below. Use the controls in the corner of the viewer to zoom, download, or open it in a new tab.
   </div>
 
-  <div class="fleet-grid" id="fleetGrid"></div>
+  <div style="border:1px solid var(--field-line);border-radius:var(--r-md);overflow:hidden;height:70vh">
+    <iframe src="policy/WildTrust-Vehicle-and-Travel-Policy.pdf" style="width:100%;height:100%;border:none;background:var(--field)" title="WildTrust Vehicle and Travel Policy"></iframe>
+  </div>
 </div>
 
 <div id="screen-vehicle" class="screen">
@@ -623,7 +613,6 @@ const REDIRECT_URI     = 'https://nxrth98.github.io/fleetbuddy';
 const SCOPES           = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
 const VOTE_SHEET_ID    = '1GrLCv_s_WTvjksuZI50NANHtXZnnwcdxVbYMWL-qurc';
 const SHEET_TABS = ['Oneil Campaign','Becht Sharks','High Seas Alliance','Sharks III','ETF III','Hifadhi Blu','NEKTON Expedition','PEW PEI','BBP','The Light Foundation','NRF Kelp Bed','ORRA','Ocean Kind','BAF iSimangaliso','SSF','Sharks II','BAF uThukela','RFT','Blue Port WRC','Blue Port','Whale Time','Angra Maintenance'];
-const HEADERS = [['Date','Type','Station / Merchant','Amount (R)','KM Reading','Driver','Project','Vote Number','Vote Description','Receipt']];
 
 /* ═══════════ STATE ═══════════ */
 let VOTE_DB = [];
@@ -756,45 +745,12 @@ function goVehicle(){ show('screen-vehicle'); renderVehicle(); }
 function goCapture(){ show('screen-capture'); resetCapture(); }
 function goExport(){ show('screen-export'); $('xSub').textContent=currentVeh.reg+' \u00b7 '+currentVeh.base; }
 function goGuide(){ show('screen-guide'); }
-function goFleet(){ show('screen-fleet'); renderFleet(); }
+function goPolicy(){ show('screen-policy'); }
 function guideTab(t,btn){
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
   btn.classList.add('on');
   document.querySelectorAll('.tabpane').forEach(x=>x.classList.remove('on'));
   $('tab-'+t).classList.add('on');
-}
-
-/*
-  FLEET GALLERY - IMAGE NAMING CONVENTION
-  ----------------------------------------
-  Create a folder called "images" in the same place as this HTML file.
-  Each vehicle gets 2 photos, named REG-1.jpg and REG-2.jpg (reg number,
-  spaces removed, uppercase). Full list:
-
-    DB40CXZN  DB40CNZN  DF48LWZN  DB40CPZN  DB40CTZN  BM86WZZN  BM86XZZN
-    CR13WRZN  BM86ZBZN  BM87BCZN  DK13MYZN  DB40CRZN  DB40CSZN  BN88FWZN
-    DB40CZZN  DB40DBZN
-
-  Rename your photo to match, drop it in /images, overwrite the old one
-  if replacing. No code changes needed - missing files just fall back
-  to the placeholder icon automatically.
-*/
-function renderFleet(){
-  const wrap=$('fleetGrid');
-  wrap.innerHTML=VEHICLES.map(v=>{
-    const slug=slugReg(v.reg);
-    const slots=[1,2].map(n=>{
-      const path=`images/${slug}-${n}.jpg`;
-      return `<div class="fleet-img-slot">
-        <img src="${path}" alt="${v.reg} photo ${n}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-        <div class="fleet-ph" style="display:none"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg></div>
-      </div>`;
-    }).join('');
-    return `<div class="fleet-card">
-      <div class="fleet-imgs">${slots}</div>
-      <div class="fleet-cap"><div class="fleet-reg">${v.reg}</div><div class="fleet-model">${v.model}</div></div>
-    </div>`;
-  }).join('');
 }
 
 function renderVehicles(){
@@ -1053,20 +1009,37 @@ async function uploadSlipImage(e, folderId){
     return {ok:false, reason:d.error?.message||('HTTP '+r.status)};
   }catch(err){ return {ok:false, reason:err.message}; }
 }
-function rowOf(e){
-  return [e.date||'', e.type||'', e.station||'', e.amount||'', e.km||'',
-          e.driver||'', e.project||'', e.voteNum||'', e.voteDesc||'',
-          e.slipDriveId?'Uploaded':(e.slipImage?'Pending':'None')];
+const ROW_LABELS = ['DATE :','STATION:','KM READING:','FUEL / OIL:','TOLL:','TOTAL AMOUNT:','DRIVER :','VOTE NUMBER :'];
+function cardColumnOf(e){
+  const amt = parseFloat(e.amount)||0;
+  return [
+    e.date||'',
+    e.station||'',
+    e.km||'',
+    e.type==='Fuel' ? amt.toFixed(2) : '',
+    e.type==='Toll' ? amt.toFixed(2) : '',
+    amt.toFixed(2),
+    e.driver||'',
+    e.voteNum||''
+  ];
+}
+function buildCardGrid(reg, ym, list){
+  const [year, monthNum] = ym.split('-');
+  const monthName = new Date(Number(year), Number(monthNum)-1, 1).toLocaleDateString('en-ZA',{month:'long'});
+  const title = `PETROL SLIPS THE MONTH OF ${monthName.toUpperCase()} YEAR ${year} REG NO ${reg}`;
+  const cols = list.map(cardColumnOf); // each: array of 8 values, one per entry
+  const grid = [[title]];
+  grid.push(['']);
+  for(let r=0;r<8;r++){
+    grid.push([ROW_LABELS[r], ...cols.map(c=>c[r])]);
+  }
+  return grid;
 }
 async function ensureVehicleSheet(reg, ym){
   const key='fb_sheet_'+reg+'_'+ym;
   let id=localStorage.getItem(key);
   if(id==='undefined'||id==='null'||id===''){ id=null; localStorage.removeItem(key); }
-  if(id){
-    await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/Recon!A1:J1?valueInputOption=RAW`,
-      {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:HEADERS})});
-    return id;
-  }
+  if(id) return id;
   const folder=await driveFolder(['FleetBuddy', reg, ym]);
   const r=await gFetch('https://sheets.googleapis.com/v4/spreadsheets',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({properties:{title:`FleetBuddy ${reg} ${ym}`},sheets:[{properties:{title:'Recon'}}]})});
@@ -1075,17 +1048,18 @@ async function ensureVehicleSheet(reg, ym){
   if(!id) throw new Error('Could not create the Google Sheet: '+(created.error?.message||'unknown error'));
   localStorage.setItem(key,id);
   await gFetch(`https://www.googleapis.com/drive/v3/files/${id}?addParents=${folder}&removeParents=root&fields=id`,{method:'PATCH'});
-  await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/Recon!A1:J1?valueInputOption=RAW`,
-    {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:HEADERS})});
   return id;
 }
 async function writeVehicleSheet(reg, ym, list){
   const id=await ensureVehicleSheet(reg, ym);
-  await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/Recon!A2:Z5000:clear`,{method:'POST'});
-  if(list.length){
-    await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/Recon!A2:J${list.length+1}?valueInputOption=RAW`,
-      {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:list.map(rowOf)})});
-  }
+  // clear a generous range - column count grows with number of slips, so clear wide
+  await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/Recon!A1:BZ50:clear`,{method:'POST'});
+  const grid=buildCardGrid(reg, ym, list);
+  const lastCol = list.length + 1; // +1 for the label column
+  const colLetter = n => { let s=''; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; };
+  const range = `Recon!A1:${colLetter(lastCol)}${grid.length}`;
+  await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${range}?valueInputOption=RAW`,
+    {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:grid})});
   return id;
 }
 
