@@ -56,7 +56,7 @@
   .btn{
     display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:18px;
     border:none;border-radius:var(--r-md);font-family:inherit;font-size:16px;font-weight:650;
-    cursor:pointer;transition:transform .12s,opacity .15s;letter-spacing:-.01em;
+    cursor:pointer;transition:transform .12s,opacity .15s;letter-spacing:-.01em;text-decoration:none;
   }
   .btn:active{transform:scale(.975)}
   .btn:disabled{opacity:.45;pointer-events:none}
@@ -323,11 +323,13 @@
   </div>
 
   <div class="policy-note">
-    Full signed policy document, embedded below. Use the controls in the corner of the viewer to zoom, download, or open it in a new tab.
+    Mobile browsers don't reliably scroll multi-page PDFs inside an embedded viewer, so this opens the document straight in your browser's own PDF viewer instead - full pagination, zoom, and sharing work properly there.
   </div>
 
-  <div style="border:1px solid var(--field-line);border-radius:var(--r-md);overflow:hidden;height:70vh">
-    <iframe src="policy/WildTrust-Vehicle-and-Travel-Policy.pdf" style="width:100%;height:100%;border:none;background:var(--field)" title="WildTrust Vehicle and Travel Policy"></iframe>
+  <div class="xcard">
+    <div class="xico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+    <div class="xbody"><h4>WildTrust Vehicle and Travel Policy</h4><p>Signed PDF, updated 16 March 2026</p></div>
+    <a class="btn btn-primary btn-sm" href="policy/WildTrust-Vehicle-and-Travel-Policy.pdf" target="_blank" rel="noopener">Open</a>
   </div>
 </div>
 
