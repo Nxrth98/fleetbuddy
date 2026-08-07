@@ -30,7 +30,8 @@ Same architecture as ReconEasy — a single static HTML file, no build step, no 
 | Piece | Where it lives | Purpose |
 |---|---|---|
 | `index.html` | This repo, served via GitHub Pages | The entire app |
-| `logo.png` | This repo, root level next to `index.html` | App logo - sign-in screen and browser tab icon |
+| `logo.png` | This repo, root level next to `index.html` | App logo - sign-in screen |
+| `favicon.png` | This repo, root level next to `index.html` | Browser tab icon - logo on a white circle |
 | Worker | `reconeasy-worker` repo (shared, unchanged) | Proxies the slip-reading AI call |
 | Vote database | Same shared Google Sheet ReconEasy uses | Live source of vote/budget codes |
 | Recon entries & receipts | Each signed-in user's own Google Drive, under a `FleetBuddy` folder, subfoldered per vehicle | Created automatically on first sync |
