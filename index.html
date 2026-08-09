@@ -978,12 +978,21 @@ function saveEntry(){
 }
 
 /* ═══════════ DRIVE + SHEETS ═══════════ */
+async function driveIdIsUsable(id){
+  try{
+    const r=await gFetch(`https://www.googleapis.com/drive/v3/files/${id}?fields=id,trashed`);
+    if(!r.ok) return false;
+    const d=await r.json();
+    return !!d.id && !d.trashed;
+  }catch(e){ return false; }
+}
 async function driveFolder(path){
   let parent='root';
   for(const name of path){
     const key='fb_fld_'+name+'_'+parent;
     let id=localStorage.getItem(key);
     if(id==='undefined'||id==='null'||id===''){ id=null; localStorage.removeItem(key); }
+    if(id && !(await driveIdIsUsable(id))){ id=null; localStorage.removeItem(key); }
     if(!id){
       const q=`name='${name.replace(/'/g,"\\'")}' and mimeType='application/vnd.google-apps.folder' and '${parent}' in parents and trashed=false`;
       const r=await gFetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`);
@@ -1065,6 +1074,7 @@ async function ensureVehicleSheet(reg, ym){
   const key='fb_sheet_'+reg+'_'+ym;
   let id=localStorage.getItem(key);
   if(id==='undefined'||id==='null'||id===''){ id=null; localStorage.removeItem(key); }
+  if(id && !(await driveIdIsUsable(id))){ id=null; localStorage.removeItem(key); }
   if(id) return id;
   const folder=await driveFolder(['FleetBuddy', reg, ym]);
   const r=await gFetch('https://sheets.googleapis.com/v4/spreadsheets',{method:'POST',headers:{'Content-Type':'application/json'},
