@@ -33,7 +33,7 @@
     display:flex;align-items:center;justify-content:center;cursor:pointer;
     transition:transform .12s,background .15s;
   }
-  .icon-btn:active{transform:scale(.92);background:#1A2029}
+  .icon-btn:active{transform:scale(.92);background:var(--field)}
   .icon-btn svg{width:17px;height:17px}
   .topbar-mid{flex:1;text-align:center}
   .topbar-mid h2{font-size:17px;font-weight:650;letter-spacing:-.02em}
@@ -150,7 +150,7 @@
   .empty p{font-size:14.5px;line-height:1.5}
 
   .capzone{
-    background:var(--card);border:1px solid var(--field-line);
+    display:block;background:var(--card);border:1px solid var(--field-line);
     border-radius:var(--r-lg);padding:34px 20px;text-align:center;position:relative;overflow:hidden;
     margin-bottom:20px;cursor:pointer;transition:opacity .13s;
   }
