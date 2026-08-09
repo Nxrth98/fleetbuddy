@@ -451,6 +451,7 @@
   </div>
 
   <button class="btn btn-primary" onclick="saveEntry()">Save slip</button>
+  <button class="btn btn-danger" id="bDelete" onclick="deleteEntry()" style="display:none;margin-top:10px">Delete slip</button>
 </div>
 
 <div id="screen-export" class="screen">
@@ -845,6 +846,7 @@ function goDetail(id){
   $('fDriver').value=e.driver||''; $('fProject').value=e.project||'';
   if(e.voteNum) pickVote(e.voteNum, e.voteDesc||''); else clearVote();
   if(e.slipImage){ photoData=e.slipImage; }
+  $('bDelete').style.display='block';
 }
 
 /* ═══════════ CAPTURE + PHOTO + AI ═══════════ */
@@ -857,6 +859,17 @@ function resetCapture(){
   $('fDriver').value=''; $('fProject').value='';
   $('fVote').value=''; clearVote();
   setType(document.querySelector('#typeChips .chip'),'Fuel');
+  $('bDelete').style.display='none';
+}
+function deleteEntry(){
+  if(!editingId) return;
+  if(!confirm('Delete this slip? This only removes it from FleetBuddy - it does not undo anything already synced to Sheets or Drive.')) return;
+  const reg=currentVeh.reg;
+  const list=getEntries(reg).filter(x=>x.id!==editingId);
+  setEntries(reg, list);
+  toast('Slip deleted');
+  editingId=null;
+  goVehicle();
 }
 function setType(btn,t){ capType=t; document.querySelectorAll('#typeChips .chip').forEach(c=>c.classList.remove('on')); if(btn) btn.classList.add('on'); }
 
