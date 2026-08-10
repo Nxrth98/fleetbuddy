@@ -256,6 +256,34 @@
   .faq summary::after{content:'';width:9px;height:9px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg);flex-shrink:0;transition:transform .2s}
   .faq[open] summary::after{transform:rotate(-135deg)}
   .faq p{font-size:14px;color:var(--ink-2);line-height:1.55;margin-top:12px}
+
+  /* ── Trip audit ── */
+  .modepill{display:inline-flex;align-items:center;gap:7px;background:var(--green-soft);border:1px solid rgba(91,141,239,.28);color:var(--green-mid);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px;border-radius:var(--pill);margin-bottom:18px}
+  .modepill.checkin{background:rgba(232,163,61,.14);border-color:rgba(232,163,61,.3);color:var(--amber)}
+  .aitem{background:var(--card);border:1px solid var(--field-line);border-radius:14px;padding:14px 16px;margin-bottom:9px}
+  .aitem-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
+  .aitem-name{font-size:14px;font-weight:600;letter-spacing:-.01em;flex:1;line-height:1.35}
+  .aitem-status{flex-shrink:0;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 11px;border-radius:8px;background:var(--field);color:var(--ink-3);border:1px solid var(--field-line)}
+  .aitem-status.nf{background:rgba(180,54,42,.1);color:var(--red);border-color:rgba(180,54,42,.22)}
+  .aitem-status.np{background:rgba(232,163,61,.14);color:var(--amber);border-color:rgba(232,163,61,.3)}
+  .aitem-status.ok{background:rgba(30,142,90,.1);color:#1E8E5A;border-color:rgba(30,142,90,.22)}
+  .aitem-body{margin-top:13px;padding-top:13px;border-top:1px solid var(--field-line);display:none}
+  .aitem-body.show{display:block}
+  .aitem-choices{display:flex;gap:8px;margin-bottom:11px}
+  .aitem-choices .chip{flex:1;text-align:center;padding:10px 8px;font-size:12.5px}
+  .aitem-photo{display:flex;align-items:center;gap:10px;background:var(--field);border:1px dashed var(--field-line);border-radius:12px;padding:10px 12px;cursor:pointer;margin-bottom:10px;font-size:13px;color:var(--ink-2)}
+  .aitem-photo svg{width:16px;height:16px;flex-shrink:0;color:var(--ink-3)}
+  .aitem-photo img{width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0}
+  .aitem-comment{width:100%;background:var(--field);border:1px solid var(--field-line);border-radius:10px;padding:11px 13px;font-size:13.5px;font-family:inherit;color:var(--ink);outline:none;resize:vertical;min-height:56px}
+  .aitem-comment:focus{background:#fff;border-color:var(--green-mid)}
+  .audit-progress{font-size:12.5px;color:var(--ink-3);text-align:center;margin:4px 0 18px}
+  .odo-row{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-md);padding:14px 16px;margin-bottom:20px}
+  .odo-thumb{width:52px;height:52px;border-radius:12px;background:var(--field);border:1px solid var(--field-line);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
+  .odo-thumb svg{width:20px;height:20px;color:var(--ink-3)}
+  .odo-thumb img{width:100%;height:100%;object-fit:cover}
+  .odo-body{flex:1;min-width:0}
+  .odo-body label{display:block;font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+  .odo-body input{width:100%;border:none;background:transparent;font-size:19px;font-weight:700;font-family:inherit;color:var(--ink);outline:none;padding:0}
 </style>
 </head>
 <body>
@@ -318,9 +346,9 @@
   <div id="vehList"></div>
 
   <div class="sticky">
-    <button class="btn btn-ghost" onclick="goPolicy()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-      View vehicle policy
+    <button class="btn btn-ghost" onclick="goAuditPick()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Trip Audit
     </button>
   </div>
 </div>
@@ -379,6 +407,85 @@
       New slip
     </button>
   </div>
+</div>
+
+<div id="screen-audit-pick" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="goHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="topbar-mid"><h2>Trip Audit</h2><p>Pick a vehicle</p></div>
+    <div class="spacer-44"></div>
+  </div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="auditVehSearch" placeholder="Filter by reg or model" oninput="renderAuditVehicles()">
+  </div>
+  <div id="auditVehList"></div>
+</div>
+
+<div id="screen-audit" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="goAuditPick()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="topbar-mid"><h2 id="auditVeh">BM 86XZZN</h2><p id="auditVehSub">Isuzu D-Max</p></div>
+    <div class="spacer-44"></div>
+  </div>
+
+  <div id="auditModePill" class="modepill">Checkout</div>
+
+  <div class="fgroup">
+    <label class="label">Driver</label>
+    <input type="text" class="field" id="aDriver" placeholder="Who is driving" autocomplete="off">
+  </div>
+  <div class="fgroup" id="auditPurposeGroup">
+    <label class="label">Trip purpose</label>
+    <input type="text" class="field" id="aPurpose" placeholder="e.g. Site visit - uThukela" autocomplete="off">
+  </div>
+
+  <div class="odo-row">
+    <label class="odo-thumb" id="odoThumbOut" for="fileOdoOut">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+    </label>
+    <input type="file" id="fileOdoOut" accept="image/*" capture="environment" style="display:none" onchange="onOdoPhoto(this,'out')">
+    <div class="odo-body">
+      <label>Mileage out</label>
+      <input type="number" inputmode="numeric" id="aMileageOut" placeholder="Tap the icon to photograph the odometer">
+    </div>
+  </div>
+
+  <div class="odo-row" id="odoInRow" style="display:none">
+    <label class="odo-thumb" id="odoThumbIn" for="fileOdoIn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+    </label>
+    <input type="file" id="fileOdoIn" accept="image/*" capture="environment" style="display:none" onchange="onOdoPhoto(this,'in')">
+    <div class="odo-body">
+      <label>Mileage in</label>
+      <input type="number" inputmode="numeric" id="aMileageIn" placeholder="Tap the icon to photograph the odometer">
+    </div>
+  </div>
+
+  <div class="ai" id="odoAiBar">
+    <div class="spin" id="odoAiSpin"></div>
+    <div class="ai-tx" id="odoAiTx">Reading odometer...</div>
+  </div>
+
+  <div class="sec-label" id="checklistLabel">Vehicle checklist</div>
+  <p class="audit-progress" id="auditProgress">Everything defaults to Functional - only tap an item to report a problem</p>
+  <div id="auditChecklist"></div>
+
+  <div class="sec-label">First aid kit</div>
+  <div class="aitem">
+    <div class="aitem-head" onclick="toggleFirstAid()">
+      <div class="aitem-name">Checked and complete this week</div>
+      <div class="aitem-status ok" id="firstAidStatus">Yes</div>
+    </div>
+    <p id="firstAidNote" style="font-size:12px;color:var(--ink-3);margin-top:8px"></p>
+  </div>
+
+  <div class="fgroup" style="margin-top:20px">
+    <label class="label">Additional comments</label>
+    <textarea class="aitem-comment" id="aComments" placeholder="Anything else worth flagging" style="min-height:70px"></textarea>
+  </div>
+
+  <button class="btn btn-primary" id="bAuditSubmit" onclick="submitAudit()">Complete checkout</button>
 </div>
 
 <div id="screen-capture" class="screen">
@@ -492,6 +599,11 @@
     <button class="tab" data-t="driving" onclick="guideTab('driving',this)">Driving rules</button>
     <button class="tab" data-t="new" onclick="guideTab('new',this)">What's new 2026</button>
     <button class="tab" data-t="faq" onclick="guideTab('faq',this)">FAQ</button>
+  </div>
+
+  <div class="xcard" onclick="goPolicy()">
+    <div class="xico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+    <div class="xbody"><h4>Vehicle policy</h4><p>WildTrust Vehicle and Travel Policy PDF</p></div>
   </div>
 
   <div id="tab-how" class="tabpane on">
@@ -759,6 +871,7 @@ function goCapture(){ show('screen-capture'); resetCapture(); }
 function goExport(){ show('screen-export'); $('xSub').textContent=currentVeh.reg+' \u00b7 '+currentVeh.base; }
 function goGuide(){ show('screen-guide'); }
 function goPolicy(){ show('screen-policy'); }
+function goAuditPick(){ show('screen-audit-pick'); renderAuditVehicles(); }
 function guideTab(t,btn){
   document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
   btn.classList.add('on');
@@ -791,6 +904,29 @@ function renderVehicles(){
 function openVehicle(reg){
   currentVeh=VEHICLES.find(v=>v.reg===reg);
   goVehicle();
+}
+
+function renderAuditVehicles(){
+  const q=($('auditVehSearch').value||'').toLowerCase();
+  const list=VEHICLES.filter(v=>v.reg.toLowerCase().includes(q)||v.model.toLowerCase().includes(q)||v.base.toLowerCase().includes(q));
+  const wrap=$('auditVehList');
+  wrap.innerHTML=list.map((v,i)=>{
+    const open=openAuditFor(v.reg);
+    const mk=makeOf(v.model);
+    const icoStyle=mk?` style="background-image:url('${BADGES[mk]}')"`:'';
+    const icoInner=mk?'':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm14 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0M5 17V9l2-5h10l2 5v8"/></svg>';
+    return `<div class="veh" onclick="openAuditVehicle('${v.reg}')">
+      <div class="veh-idx">${String(i+1).padStart(2,'0')}</div>
+      <div class="veh-ico"${icoStyle}>${icoInner}</div>
+      <div class="veh-body"><div class="veh-reg">${v.reg}</div><div class="veh-model">${v.model} \u00b7 ${v.base}</div></div>
+      <div class="veh-meta">${open?'Out on trip':''}</div>
+      <div class="veh-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></div>
+    </div>`;
+  }).join('');
+}
+function openAuditVehicle(reg){
+  currentVeh=VEHICLES.find(v=>v.reg===reg);
+  goAudit();
 }
 
 /* ═══════════ MONTHLY REPORTS (Drive upload) ═══════════ */
@@ -853,6 +989,240 @@ function goDetail(id){
   if(e.voteNum) pickVote(e.voteNum, e.voteDesc||''); else clearVote();
   if(e.slipImage){ photoData=e.slipImage; }
   $('bDelete').style.display='block';
+}
+
+/* ═══════════ TRIP AUDIT ═══════════ */
+const CHECKLIST_ITEMS = [
+  'HOOTER','IGNITION/KEY + SPARE KEY','ALARM/MOBILISER','DASH LIGHTS',
+  'AIRCON/RADIO/SPEAKER SYSTEM','HANDBRAKE/GEAR SELECTION','LOGBOOK SIGNED FOR EACH SERVICE',
+  'WINDOW WINDER MECHANISM & LOCK','JACK/WHEEL SPANNER/TRIANGLE','SEATS + UPHOLSTERY','ROPES/NETS',
+  'FIRE EXTINGUISHER & DATE OF NEXT SERVICE','CAB GLASS','WIPERS','HEADLIGHTS + BRIGHTS',
+  'INDICATORS + HAZARDS','TAIL LIGHTS + REVERSE LIGHTS','WINDSCREEN (FRONT & REAR)',
+  'DOORSHELLS/EXTERIOR BODYWORK','CANOPY DOOR + WINDOWS','DOOR MIRROR','OUTER DOOR HANDLES',
+  'TYRES + SPARE WHEEL','CANOPY + LOCK','RAILING STRUCTURE','TOW HITCH + PLUG WIRING','AERIAL',
+  'BATTERY + BATTERY GUARD','WATER + OIL'
+];
+const CHECKIN_DEFAULT_RECHECK = ['TYRES + SPARE WHEEL','DOORSHELLS/EXTERIOR BODYWORK','WINDSCREEN (FRONT & REAR)'];
+function odoAiState(mode,text){
+  $('odoAiBar').classList.add('show');
+  $('odoAiSpin').style.display = mode==='load' ? 'block' : 'none';
+  $('odoAiTx').textContent=text;
+}
+const DAMAGE_CODES = {B:'Broken',C:'Chipped',D:'Dent',M:'Missing',S:'Scratched',K:'Cracked',P:'Paint defect',Z:'Other'};
+
+const getAudits = reg => { try{ return JSON.parse(localStorage.getItem('fb_audits_'+reg) || '[]'); }catch(e){ return []; } };
+const setAudits = (reg,list) => localStorage.setItem('fb_audits_'+reg, JSON.stringify(list));
+function openAuditFor(reg){ return getAudits(reg).find(a=>!a.checkinAt) || null; }
+
+let auditMode='checkout';
+let auditOpenRecord=null;
+let auditItems=[];           // items shown on screen this session
+let auditState={};           // item -> {status, comment, photo, code}
+let auditActiveItem=null;    // item currently expanded, for photo/suggest targeting
+
+function goAudit(){ show('screen-audit'); resetAuditForm(); }
+
+function resetAuditForm(){
+  const reg=currentVeh.reg;
+  $('auditVeh').textContent=reg;
+  $('auditVehSub').textContent=currentVeh.model+' \u00b7 '+currentVeh.base;
+  auditOpenRecord = openAuditFor(reg);
+  auditMode = auditOpenRecord ? 'checkin' : 'checkout';
+  auditState = {}; auditActiveItem=null;
+
+  $('odoAiBar').classList.remove('show');
+  $('aComments').value='';
+
+  if(auditMode==='checkout'){
+    $('auditModePill').textContent='Checkout'; $('auditModePill').classList.remove('checkin');
+    $('auditPurposeGroup').style.display='block';
+    $('aDriver').disabled=false; $('aDriver').value='';
+    $('aPurpose').value='';
+    $('aMileageOut').value=''; $('aMileageOut').disabled=false;
+    $('fileOdoOut').disabled=false;
+    $('odoThumbOut').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+    $('odoInRow').style.display='none';
+    $('checklistLabel').textContent='Vehicle checklist';
+    $('auditProgress').textContent='Everything defaults to Functional - only tap an item to report a problem';
+    $('bAuditSubmit').textContent='Complete checkout';
+    auditItems = CHECKLIST_ITEMS.slice();
+    auditItems.forEach(it=>{ auditState[it]={status:'Functional', comment:'', photo:null, code:''}; });
+  } else {
+    $('auditModePill').textContent='Return'; $('auditModePill').classList.add('checkin');
+    $('auditPurposeGroup').style.display='none';
+    $('aDriver').value=auditOpenRecord.driver||''; $('aDriver').disabled=true;
+    $('aMileageOut').value=auditOpenRecord.mileageOut||''; $('aMileageOut').disabled=true;
+    $('fileOdoOut').disabled=true;
+    $('odoInRow').style.display='flex';
+    $('aMileageIn').value='';
+    $('odoThumbIn').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+    $('checklistLabel').textContent='Re-check on return';
+    $('auditProgress').textContent='Showing items flagged at checkout, plus tyres, bodywork and windscreen';
+    $('bAuditSubmit').textContent='Complete return';
+    const flagged = Object.keys(auditOpenRecord.checklist||{});
+    auditItems = Array.from(new Set([...flagged, ...CHECKIN_DEFAULT_RECHECK]));
+    auditItems.forEach(it=>{
+      const prev=(auditOpenRecord.checklist||{})[it];
+      auditState[it] = prev ? {...prev} : {status:'Functional', comment:'', photo:null, code:''};
+    });
+  }
+  renderFirstAid();
+  renderAuditChecklist();
+}
+
+function renderAuditChecklist(){
+  const wrap=$('auditChecklist');
+  wrap.innerHTML = auditItems.map(item=>{
+    const s=auditState[item];
+    const cls = s.status==='Non-Functional' ? 'nf' : s.status==='Not Present' ? 'np' : 'ok';
+    const open = auditActiveItem===item ? 'show' : '';
+    const codeRow = s.status==='Non-Functional' ? `
+      <div class="chips" style="margin-bottom:10px">
+        ${Object.entries(DAMAGE_CODES).map(([k,v])=>`<button type="button" class="chip${s.code===k?' on':''}" onclick="setAuditCode('${esc(item)}','${k}',event)">${k} - ${v}</button>`).join('')}
+      </div>` : '';
+    return `<div class="aitem">
+      <div class="aitem-head" onclick="toggleAuditItem('${esc(item)}')">
+        <div class="aitem-name">${esc(item)}</div>
+        <div class="aitem-status ${cls}">${s.status==='Functional'?'OK':s.status}</div>
+      </div>
+      <div class="aitem-body ${open}">
+        <div class="aitem-choices">
+          <button type="button" class="chip${s.status==='Functional'?' on':''}" onclick="setAuditStatus('${esc(item)}','Functional',event)">Functional</button>
+          <button type="button" class="chip${s.status==='Non-Functional'?' on':''}" onclick="setAuditStatus('${esc(item)}','Non-Functional',event)">Non-functional</button>
+          <button type="button" class="chip${s.status==='Not Present'?' on':''}" onclick="setAuditStatus('${esc(item)}','Not Present',event)">Not present</button>
+        </div>
+        ${codeRow}
+        <label class="aitem-photo" for="itemPhoto_${idxKey(item)}">
+          ${s.photo?`<img src="${s.photo}">`:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>`}
+          <span>${s.photo?'Photo attached - tap to replace':'Add a photo of the issue'}</span>
+        </label>
+        <input type="file" id="itemPhoto_${idxKey(item)}" accept="image/*" capture="environment" style="display:none" onchange="onAuditItemPhoto(this,'${esc(item)}')">
+        <textarea class="aitem-comment" placeholder="Comment" oninput="setAuditComment('${esc(item)}',this.value)">${esc(s.comment)}</textarea>
+      </div>
+    </div>`;
+  }).join('');
+}
+function idxKey(item){ return item.replace(/[^a-z0-9]/gi,'_'); }
+function toggleAuditItem(item){ auditActiveItem = auditActiveItem===item ? null : item; renderAuditChecklist(); }
+function setAuditStatus(item,status,ev){ if(ev) ev.stopPropagation(); auditState[item].status=status; if(status!=='Non-Functional') auditState[item].code=''; auditActiveItem=item; renderAuditChecklist(); }
+function setAuditCode(item,code,ev){ if(ev) ev.stopPropagation(); auditState[item].code=code; auditActiveItem=item; renderAuditChecklist(); }
+function setAuditComment(item,val){ auditState[item].comment=val; }
+
+async function onAuditItemPhoto(input,item){
+  if(!input.files || !input.files[0]) return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    const data=await compress(e.target.result,1200,0.72);
+    auditState[item].photo=data;
+    auditActiveItem=item;
+    renderAuditChecklist();
+    if(auditState[item].status==='Non-Functional') suggestDamageCode(item,data);
+  };
+  r.readAsDataURL(input.files[0]);
+}
+async function suggestDamageCode(item,dataUrl){
+  odoAiState('load','Suggesting a damage code...');
+  try{
+    const b64=dataUrl.split(',')[1];
+    const r=await fetch(WORKER_URL,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6', max_tokens:200,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+          {type:'text',text:`This is a photo of a fleet vehicle defect on the item "${item}". Reply with ONLY a JSON object, no markdown fences: {"code":"one of B,C,D,M,S,K,P,Z","note":"under 12 words describing the defect"}. Codes: B=Broken, C=Chipped, D=Dent, M=Missing, S=Scratched, K=Cracked, P=Paint defect, Z=Other.`}
+        ]}]})
+    });
+    const d=await r.json();
+    const txt=(d.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');
+    const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    if(parsed.code && DAMAGE_CODES[parsed.code]){
+      auditState[item].code=parsed.code;
+      if(!auditState[item].comment) auditState[item].comment=parsed.note||'';
+      renderAuditChecklist();
+    }
+    $('odoAiBar').classList.remove('show');
+  }catch(e){ $('odoAiBar').classList.remove('show'); }
+}
+
+
+function renderFirstAid(){
+  const reg=currentVeh.reg;
+  const last=localStorage.getItem('fb_firstaid_'+reg);
+  const stale = !last || (Date.now()-Number(last)) > 7*24*60*60*1000;
+  $('firstAidStatus').textContent = stale ? 'Check due' : 'Yes';
+  $('firstAidStatus').className = 'aitem-status ' + (stale ? 'np' : 'ok');
+  $('firstAidNote').textContent = last ? ('Last checked '+new Date(Number(last)).toLocaleDateString('en-ZA')) : 'Not checked yet on this device';
+}
+function toggleFirstAid(){
+  localStorage.setItem('fb_firstaid_'+currentVeh.reg, String(Date.now()));
+  renderFirstAid();
+  toast('First aid kit marked checked');
+}
+
+async function onOdoPhoto(input,which){
+  if(!input.files || !input.files[0]) return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    const data=await compress(e.target.result,1200,0.72);
+    const thumb = which==='out' ? $('odoThumbOut') : $('odoThumbIn');
+    thumb.innerHTML = `<img src="${data}">`;
+    odoAiState('load','Reading odometer...');
+    try{
+      const b64=data.split(',')[1];
+      const r2=await fetch(WORKER_URL,{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-6', max_tokens:100,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+            {type:'text',text:'Read the odometer reading in this photo. Reply with ONLY a JSON object, no markdown fences: {"km":"digits only, or null if not confidently readable"}.'}
+          ]}]})
+      });
+      const d=await r2.json();
+      const txt=(d.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');
+      const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
+      if(parsed.km){
+        const val=String(parsed.km).replace(/[^\d]/g,'');
+        if(which==='out') $('aMileageOut').value=val; else $('aMileageIn').value=val;
+        odoAiState('ok','Odometer read: '+val+' km - check before saving');
+      } else {
+        odoAiState('err','Could not read the odometer - enter it manually');
+      }
+    }catch(err){ odoAiState('err','Could not read the odometer - enter it manually'); }
+  };
+  r.readAsDataURL(input.files[0]);
+}
+
+function submitAudit(){
+  const reg=currentVeh.reg;
+  if(auditMode==='checkout'){
+    const driver=$('aDriver').value.trim(), mOut=$('aMileageOut').value;
+    if(!driver){ toast('Add the driver'); $('aDriver').focus(); return; }
+    if(!mOut){ toast('Add mileage out'); $('aMileageOut').focus(); return; }
+    const checklist={};
+    auditItems.forEach(it=>{ if(auditState[it].status!=='Functional' || auditState[it].comment || auditState[it].photo) checklist[it]=auditState[it]; });
+    const rec={
+      id: uid(), reg, driver,
+      purpose: $('aPurpose').value.trim(),
+      mileageOut: mOut, checklist,
+      comments: $('aComments').value.trim(),
+      checkoutAt: Date.now()
+    };
+    const list=getAudits(reg); list.push(rec); setAudits(reg,list);
+    toast('Checkout recorded - have a safe trip');
+  } else {
+    const mIn=$('aMileageIn').value;
+    if(!mIn){ toast('Add mileage in'); $('aMileageIn').focus(); return; }
+    const list=getAudits(reg);
+    const i=list.findIndex(a=>a.id===auditOpenRecord.id);
+    if(i>=0){
+      const merged = {...(list[i].checklist||{})};
+      auditItems.forEach(it=>{ if(auditState[it].status!=='Functional' || auditState[it].comment || auditState[it].photo) merged[it]=auditState[it]; else delete merged[it]; });
+      list[i] = {...list[i], mileageIn:mIn, checklistReturn:merged, commentsReturn:$('aComments').value.trim(), checkinAt:Date.now()};
+      setAudits(reg,list);
+    }
+    toast('Trip closed out');
+  }
+  goVehicle();
 }
 
 /* ═══════════ CAPTURE + PHOTO + AI ═══════════ */
