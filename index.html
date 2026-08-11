@@ -284,6 +284,16 @@
   .odo-body{flex:1;min-width:0}
   .odo-body label{display:block;font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
   .odo-body input{width:100%;border:none;background:transparent;font-size:19px;font-weight:700;font-family:inherit;color:var(--ink);outline:none;padding:0}
+  .walk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px}
+  .walk-slot{position:relative;aspect-ratio:4/3;border-radius:14px;background:var(--card);border:1.5px dashed var(--field-line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;overflow:hidden;transition:opacity .13s}
+  .walk-slot:active{opacity:.75}
+  .walk-slot.done{border-style:solid;border-color:rgba(30,142,90,.3)}
+  .walk-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .walk-slot svg{width:19px;height:19px;color:var(--ink-3)}
+  .walk-slot span{font-size:12px;font-weight:620;color:var(--ink-2);text-align:center;padding:0 8px}
+  .walk-slot .walk-badge{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:#1E8E5A;display:flex;align-items:center;justify-content:center;z-index:2}
+  .walk-slot .walk-badge svg{width:11px;height:11px;color:#fff}
+  .walk-slot .walk-label-on{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent);color:#fff;font-size:11px;font-weight:650;padding:16px 8px 7px;text-align:center;z-index:1}
 </style>
 </head>
 <body>
@@ -466,6 +476,10 @@
     <div class="spin" id="odoAiSpin"></div>
     <div class="ai-tx" id="odoAiTx">Reading odometer...</div>
   </div>
+
+  <div class="sec-label" id="walkLabel">Photo walkaround</div>
+  <p class="audit-progress" id="walkProgress">0 of 8 angles photographed</p>
+  <div class="walk-grid" id="walkGrid"></div>
 
   <div class="sec-label" id="checklistLabel">Vehicle checklist</div>
   <p class="audit-progress" id="auditProgress">Everything defaults to Functional - only tap an item to report a problem</p>
@@ -1003,6 +1017,30 @@ const CHECKLIST_ITEMS = [
   'BATTERY + BATTERY GUARD','WATER + OIL'
 ];
 const CHECKIN_DEFAULT_RECHECK = ['TYRES + SPARE WHEEL','DOORSHELLS/EXTERIOR BODYWORK','WINDSCREEN (FRONT & REAR)'];
+const WALK_ANGLES = ['Front','Rear','Left side','Right side','Front-left corner','Front-right corner','Rear-left corner','Rear-right corner'];
+let auditWalk = {};
+function renderWalkGrid(){
+  const wrap=$('walkGrid');
+  wrap.innerHTML = WALK_ANGLES.map(a=>{
+    const photo=auditWalk[a];
+    return `<label class="walk-slot${photo?' done':''}">
+      ${photo?`<img src="${photo}"><div class="walk-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="walk-label-on">${esc(a)}</div>`
+      :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg><span>${esc(a)}</span>`}
+      <input type="file" accept="image/*" capture="environment" style="display:none" onchange="onWalkPhoto(this,'${esc(a)}')">
+    </label>`;
+  }).join('');
+  const n=Object.keys(auditWalk).length;
+  $('walkProgress').textContent = n+' of '+WALK_ANGLES.length+' angles photographed'+(n===WALK_ANGLES.length?' - all done':'');
+}
+async function onWalkPhoto(input, angle){
+  if(!input.files || !input.files[0]) return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    auditWalk[angle]=await compress(e.target.result,1200,0.72);
+    renderWalkGrid();
+  };
+  r.readAsDataURL(input.files[0]);
+}
 function odoAiState(mode,text){
   $('odoAiBar').classList.add('show');
   $('odoAiSpin').style.display = mode==='load' ? 'block' : 'none';
@@ -1028,7 +1066,7 @@ function resetAuditForm(){
   $('auditVehSub').textContent=currentVeh.model+' \u00b7 '+currentVeh.base;
   auditOpenRecord = openAuditFor(reg);
   auditMode = auditOpenRecord ? 'checkin' : 'checkout';
-  auditState = {}; auditActiveItem=null;
+  auditState = {}; auditActiveItem=null; auditWalk = {};
 
   $('odoAiBar').classList.remove('show');
   $('aComments').value='';
@@ -1043,6 +1081,7 @@ function resetAuditForm(){
     $('odoThumbOut').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>';
     $('odoInRow').style.display='none';
     $('checklistLabel').textContent='Vehicle checklist';
+    $('walkLabel').textContent='Photo walkaround';
     $('auditProgress').textContent='Everything defaults to Functional - only tap an item to report a problem';
     $('bAuditSubmit').textContent='Complete checkout';
     auditItems = CHECKLIST_ITEMS.slice();
@@ -1057,6 +1096,7 @@ function resetAuditForm(){
     $('aMileageIn').value='';
     $('odoThumbIn').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>';
     $('checklistLabel').textContent='Re-check on return';
+    $('walkLabel').textContent='Return walkaround';
     $('auditProgress').textContent='Showing items flagged at checkout, plus tyres, bodywork and windscreen';
     $('bAuditSubmit').textContent='Complete return';
     const flagged = Object.keys(auditOpenRecord.checklist||{});
@@ -1068,6 +1108,7 @@ function resetAuditForm(){
   }
   renderFirstAid();
   renderAuditChecklist();
+  renderWalkGrid();
 }
 
 function renderAuditChecklist(){
@@ -1198,12 +1239,17 @@ function submitAudit(){
     const driver=$('aDriver').value.trim(), mOut=$('aMileageOut').value;
     if(!driver){ toast('Add the driver'); $('aDriver').focus(); return; }
     if(!mOut){ toast('Add mileage out'); $('aMileageOut').focus(); return; }
+    const walkCount=Object.keys(auditWalk).length;
+    if(walkCount<WALK_ANGLES.length){
+      if(!confirm(`Only ${walkCount} of ${WALK_ANGLES.length} walkaround angles photographed. Submit checkout anyway?`)) return;
+    }
     const checklist={};
     auditItems.forEach(it=>{ if(auditState[it].status!=='Functional' || auditState[it].comment || auditState[it].photo) checklist[it]=auditState[it]; });
     const rec={
       id: uid(), reg, driver,
       purpose: $('aPurpose').value.trim(),
       mileageOut: mOut, checklist,
+      photosOut: {...auditWalk},
       comments: $('aComments').value.trim(),
       checkoutAt: Date.now()
     };
@@ -1212,12 +1258,16 @@ function submitAudit(){
   } else {
     const mIn=$('aMileageIn').value;
     if(!mIn){ toast('Add mileage in'); $('aMileageIn').focus(); return; }
+    const walkCount=Object.keys(auditWalk).length;
+    if(walkCount<WALK_ANGLES.length){
+      if(!confirm(`Only ${walkCount} of ${WALK_ANGLES.length} return walkaround angles photographed. Submit anyway?`)) return;
+    }
     const list=getAudits(reg);
     const i=list.findIndex(a=>a.id===auditOpenRecord.id);
     if(i>=0){
       const merged = {...(list[i].checklist||{})};
       auditItems.forEach(it=>{ if(auditState[it].status!=='Functional' || auditState[it].comment || auditState[it].photo) merged[it]=auditState[it]; else delete merged[it]; });
-      list[i] = {...list[i], mileageIn:mIn, checklistReturn:merged, commentsReturn:$('aComments').value.trim(), checkinAt:Date.now()};
+      list[i] = {...list[i], mileageIn:mIn, checklistReturn:merged, photosIn:{...auditWalk}, commentsReturn:$('aComments').value.trim(), checkinAt:Date.now()};
       setAudits(reg,list);
     }
     toast('Trip closed out');
