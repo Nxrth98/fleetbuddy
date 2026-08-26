@@ -28,7 +28,15 @@
     min-height:100vh; max-width:460px; margin:0 auto;
     -webkit-font-smoothing:antialiased; letter-spacing:-.011em;
   }
-  .app-footer{text-align:center;padding:22px 22px calc(18px + env(safe-area-inset-bottom));font-size:11px;font-weight:650;letter-spacing:.04em;color:var(--ink-3)}
+  .app-footer{background:#3A4048;margin-top:8px}
+  .footer-top{display:flex;align-items:center;justify-content:center;gap:16px;padding:22px 22px 14px}
+  .footer-mark{width:34px;height:34px;border-radius:9px;overflow:hidden;flex-shrink:0}
+  .footer-mark img{width:100%;height:100%;object-fit:cover}
+  .footer-div{width:1px;align-self:stretch;background:rgba(255,255,255,.18)}
+  .footer-wt{display:flex;align-items:center;gap:10px}
+  .footer-wt img.ring{height:28px;width:auto;display:block}
+  .footer-wt img.word{height:19px;width:auto;display:block}
+  .app-footer .footer-copy{text-align:center;padding:0 22px calc(18px + env(safe-area-inset-bottom));font-size:11px;font-weight:650;letter-spacing:.04em;color:rgba(255,255,255,.55)}
   .screen{display:none;padding:0 22px calc(40px + env(safe-area-inset-bottom))}
   .screen.active{display:block;animation:fade .26s ease}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -245,7 +253,8 @@
 
   .intro{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-lg);padding:20px 21px;margin:0 0 22px;cursor:pointer;transition:opacity .13s}
   .intro:active{opacity:.7}
-  .intro-ic{width:42px;height:42px;border-radius:13px;background:var(--green-soft);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .intro-ic{width:42px;height:42px;border-radius:13px;background:var(--green-soft);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .intro-ic img{width:100%;height:100%;object-fit:cover}
   .intro-ic svg{width:19px;height:19px;color:var(--green-mid)}
   .intro-body h4{font-size:15.5px;font-weight:660;letter-spacing:-.015em;margin-bottom:7px;color:var(--ink)}
   .intro-body p{font-size:13.5px;color:var(--ink-2);line-height:1.55;margin-bottom:11px}
@@ -345,7 +354,7 @@
   </div>
 
   <div class="intro" onclick="goGuide()">
-    <div class="intro-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z"/></svg></div>
+    <div class="intro-ic"><img src="logo.png" alt="FleetBuddy"></div>
     <div class="intro-body">
       <h4>What FleetBuddy is for</h4>
       <p>Capture fuel and toll slips per vehicle, tag the driver and vote, and keep every month's reconciliation ready to sync to Sheets - no more building it by hand from three separate reports.</p>
@@ -712,7 +721,14 @@
   </div>
 </div>
 
-<div class="app-footer">© 2026 WILDOCEANS IT · FleetBuddy</div>
+<div class="app-footer" style="display:none">
+  <div class="footer-top">
+    <div class="footer-mark"><img src="favicon.png" alt="FleetBuddy"></div>
+    <div class="footer-div"></div>
+    <div class="footer-wt"><img class="ring" src="wildtrust-ring.png" alt=""><img class="word" src="wildtrust-wordmark.png" alt="WildTrust"></div>
+  </div>
+  <div class="footer-copy">© 2026 WILDOCEANS, IT</div>
+</div>
 
 <script>
 const BADGES = {
@@ -786,6 +802,8 @@ function toast(msg){
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
+  const footer = document.querySelector('.app-footer');
+  if(footer) footer.style.display = (id === 'screen-auth') ? 'none' : '';
   window.scrollTo(0,0);
 }
 
