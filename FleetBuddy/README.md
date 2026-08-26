@@ -1,0 +1,86 @@
+# FleetBuddy
+
+**Fuel & toll slip reconciliation for WildTrust's WildOceans vehicle fleet.**
+
+Pick a vehicle, upload its monthly Daily Movement Report and Vehicle Analysis Report, photograph each fuel or toll slip, let AI pull the amount/station/date/odometer, type in the driver and project by hand, search the real vote number, and sync straight to Google Sheets and Drive. No app store, no install, no server.
+
+*Built in-house by WILDOCEANS IT.*
+
+---
+
+## How it's built
+
+Same architecture as ReconEasy — a single static HTML file, no build step, no framework, no backend server, paired with the same Cloudflare Worker that already proxies ReconEasy's AI calls.
+
+```
+┌──────────────────────┐        ┌────────────────────────┐        ┌────────────────────┐
+│   index.html          │──────▶│  reconeasy-worker        │──────▶│   Anthropic API     │
+│  (GitHub Pages)        │        │  (Cloudflare, existing)  │        │  (reads the slip)   │
+└──────────────────────┘        └────────────────────────┘        └────────────────────┘
+          │
+          ▼
+┌─────────────────────────────────────┐
+│  Signed-in user's own Google account │
+│  → Drive (reports/slips) + Sheets    │
+└─────────────────────────────────────┘
+```
+
+**The Cloudflare Worker is shared with ReconEasy — no new Worker was deployed.** Its CORS check only cares about the origin (`https://nxrth98.github.io`), not the path, so FleetBuddy living at `https://nxrth98.github.io/fleetbuddy` is already allowed. Nothing to configure there.
+
+| Piece | Where it lives | Purpose |
+|---|---|---|
+| `index.html` | This repo, served via GitHub Pages | The entire app |
+| `logo.png` | This repo, root level next to `index.html` | App logo - sign-in screen |
+| `favicon.png` | This repo, root level next to `index.html` | Browser tab icon - logo on a white circle |
+| Worker | `reconeasy-worker` repo (shared, unchanged) | Proxies the slip-reading AI call |
+| Vote database | Same shared Google Sheet ReconEasy uses | Live source of vote/budget codes |
+| Recon entries & receipts | Each signed-in user's own Google Drive, under a `FleetBuddy` folder, subfoldered per vehicle | Created automatically on first sync |
+| `/images` folder (you create this) | This repo | Fleet gallery photos — see naming convention below |
+
+---
+
+## Deploying this repo
+
+1. **Push this folder to GitHub** as a new repo named `fleetbuddy` under your account, then enable **GitHub Pages** (Settings → Pages → Deploy from branch → `main` / root). It'll be live at `https://nxrth98.github.io/fleetbuddy`.
+
+2. **Add the redirect URI to your existing Google Cloud OAuth Client** (the same one ReconEasy uses — no new client needed):
+   - Go to Google Cloud Console → APIs & Services → Credentials → your OAuth 2.0 Client ID
+   - Under **Authorized JavaScript origins**, confirm `https://nxrth98.github.io` is already there (it will be, from ReconEasy)
+   - Under **Authorized redirect URIs**, add `https://nxrth98.github.io/fleetbuddy`
+   - Save
+
+3. **Add yourself (and anyone else who'll use it) as a test user** on that same Google Cloud project if it's still in OAuth Testing mode — same list ReconEasy already uses.
+
+4. **Nothing else to configure.** The Worker, the vote Sheet, and the Anthropic API key are all reused as-is from ReconEasy.
+
+That's it — open the link, sign in, you're in.
+
+---
+
+## Vehicle policy
+
+The "View vehicle policy" button on Home opens the signed WildTrust Vehicle and Travel Policy PDF, embedded right in the app. The file lives at `policy/WildTrust-Vehicle-and-Travel-Policy.pdf` in this repo - already included. Replace that file (same filename) whenever the policy is updated; no code changes needed.
+
+---
+
+## Data model, in short
+
+- Entries, uploaded report files (in-memory for the session), and captured slip photos are stored **locally on the device** until you tap **Sync**
+- **Sync** now also uploads any not-yet-uploaded slip photos automatically as part of the same tap, before writing the Sheet - the standalone Upload button still exists if you want to push photos without a full sync
+- **Sync** groups entries by month and writes each month to its own Sheet, matching the real Fuel & Toll attachment layout finance already uses: one column per slip, each cell combining its label and value together (e.g. `DATE : 2026-07-08`, `STATION: Engen Ushaka`) - not a spreadsheet-style row table, and not split across a separate label column
+- The **Receipt** row is a clickable "View photo" link straight to the slip's file in Drive - not an inline thumbnail, since rendering a thumbnail in Sheets would require making the file link-shareable, which we don't do by default to keep fuel slips private
+- Vote number is always a manual search-and-pick — never auto-filled — same for driver and project, which are always typed by hand, on purpose
+- There is currently **no shared team view** — each person's synced data lives in their own Drive
+
+---
+
+## Configuration reference
+
+| Setting | Value |
+|---|---|
+| Google OAuth Client ID | `419380799116-k9dnh5p4i66r1kulqdjirj6uh3ojenrv.apps.googleusercontent.com` (shared with ReconEasy) |
+| OAuth redirect URI | `https://nxrth98.github.io/fleetbuddy` |
+| Cloudflare Worker URL | `https://reconeasy-worker.nxrth98.workers.dev` (shared, unchanged) |
+| Vote database Sheet ID | `1GrLCv_s_WTvjksuZI50NANHtXZnnwcdxVbYMWL-qurc` (shared with ReconEasy) |
+
+The Anthropic API key is not in this repo — it lives only in the Cloudflare Worker's encrypted environment variables, same as ReconEasy.

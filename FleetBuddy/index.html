@@ -1,0 +1,1647 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>FleetBuddy</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FleetBuddy">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#F1F2F4">
+<style>
+  :root{
+    --page:#F1F2F4; --ink:#1C1F24; --ink-2:#5B616A; --ink-3:#8B929B;
+    --green-deep:#1E3A8A; --green:#3B6FE0; --green-mid:#2F5FCB; --green-soft:rgba(59,111,224,.10); --green-glow:rgba(59,111,224,.18);
+    --beige:#E7E9EC; --field:#F7F8FA; --field-line:rgba(20,22,26,.09);
+    --card:#FFFFFF; --amber:#A66A0C; --red:#B4362A; --wo-blue:#3B6FE0;
+    --r-lg:22px; --r-md:16px; --r-sm:12px; --pill:10px;
+    --sh:0 2px 10px rgba(20,22,30,.06); --sh-lg:0 14px 34px rgba(20,22,30,.14);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif;
+    color:var(--ink); background:var(--page);
+    min-height:100vh; max-width:460px; margin:0 auto;
+    -webkit-font-smoothing:antialiased; letter-spacing:-.011em;
+  }
+  .app-footer{background:#3A4048;margin-top:8px}
+  .footer-top{display:flex;align-items:center;justify-content:center;gap:16px;padding:22px 22px 14px}
+  .footer-mark{width:34px;height:34px;border-radius:9px;overflow:hidden;flex-shrink:0}
+  .footer-mark img{width:100%;height:100%;object-fit:cover}
+  .footer-div{width:1px;align-self:stretch;background:rgba(255,255,255,.18)}
+  .footer-wt{display:flex;align-items:center;gap:10px}
+  .footer-wt img.ring{height:28px;width:auto;display:block}
+  .footer-wt img.word{height:19px;width:auto;display:block}
+  .app-footer .footer-copy{text-align:center;padding:0 22px calc(18px + env(safe-area-inset-bottom));font-size:11px;font-weight:650;letter-spacing:.04em;color:rgba(255,255,255,.55)}
+  .screen{display:none;padding:0 22px calc(40px + env(safe-area-inset-bottom))}
+  .screen.active{display:block;animation:fade .26s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .topbar{display:flex;align-items:center;gap:14px;padding:26px 0 18px;position:relative}
+  .icon-btn{
+    width:40px;height:40px;border-radius:11px;border:1px solid var(--field-line);flex-shrink:0;
+    background:var(--card);color:var(--ink-2);
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    transition:transform .12s,background .15s;
+  }
+  .icon-btn:active{transform:scale(.92);background:var(--field)}
+  .icon-btn svg{width:17px;height:17px}
+  .topbar-mid{flex:1;text-align:center}
+  .topbar-mid h2{font-size:17px;font-weight:650;letter-spacing:-.02em}
+  .topbar-mid p{font-size:13px;color:var(--ink-3);margin-top:1px}
+  .spacer-44{width:40px;flex-shrink:0}
+
+  .label{display:block;font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-2);margin:0 0 9px 4px}
+  .field{
+    width:100%;background:var(--field);border:1px solid var(--field-line);
+    border-radius:var(--r-md);padding:16px 18px;font-size:16px;font-family:inherit;
+    color:var(--ink);outline:none;-webkit-appearance:none;
+    transition:border-color .15s,background .15s,box-shadow .15s;
+  }
+  .field::placeholder{color:var(--ink-3)}
+  .field:focus{background:#fff;border-color:var(--green-mid);box-shadow:0 0 0 4px rgba(59,111,224,.14)}
+  .fgroup{margin-bottom:20px}
+  .frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+  .btn{
+    display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:18px;
+    border:none;border-radius:var(--r-md);font-family:inherit;font-size:16px;font-weight:650;
+    cursor:pointer;transition:transform .12s,opacity .15s;letter-spacing:-.01em;text-decoration:none;
+  }
+  .btn:active{transform:scale(.975)}
+  .btn:disabled{opacity:.45;pointer-events:none}
+  .btn-primary{background:var(--green);color:#fff;box-shadow:0 6px 20px rgba(91,141,239,.24)}
+  .btn-ghost{background:var(--card);color:var(--ink);border:1px solid var(--field-line)}
+  .btn-danger{background:rgba(224,102,90,.12);color:var(--red)}
+  .btn-sm{padding:13px 20px;font-size:14px;width:auto}
+  .btn svg{width:18px;height:18px}
+
+  .greet{padding:26px 0 20px;display:flex;align-items:flex-start;justify-content:space-between}
+  .greet-txt{flex:1}
+  .greet-txt span{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:8px}
+  .greet-txt h1{font-size:25px;font-weight:760;letter-spacing:-.01em;text-transform:uppercase}
+
+  .statrow{display:grid;grid-template-columns:1fr 1.15fr;gap:11px;margin-bottom:14px}
+  .statcard{background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-md);padding:17px 18px}
+  .statcard-k{font-size:10.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+  .statcard-v{font-size:26px;font-weight:730;letter-spacing:-.02em}
+  .statcard-v.big{font-size:20px}
+  .statcard-sub{font-size:12.5px;color:var(--ink-3);margin-top:3px}
+  .statcard-flag{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--amber);margin-top:9px}
+  .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+  .dot.amber{background:var(--amber)}
+  .dot.green{background:#1E8E5A}
+  .dot.grey{background:var(--ink-3)}
+
+  .sec-label{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);margin:22px 0 14px 2px}
+
+  .search-wrap{position:relative;margin-bottom:18px}
+  .search-wrap svg{position:absolute;left:19px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--ink-3);pointer-events:none}
+  .search-wrap input{
+    width:100%;background:var(--field);border:1px solid var(--field-line);border-radius:var(--r-md);
+    padding:15px 18px 15px 46px;font-size:15px;font-family:inherit;color:var(--ink);outline:none;
+  }
+  .search-wrap input::placeholder{color:var(--ink-3)}
+  .search-wrap input:focus{border-color:var(--green-mid)}
+
+  .veh{
+    display:flex;align-items:center;gap:14px;border-bottom:1px solid var(--field-line);
+    padding:16px 2px;cursor:pointer;transition:opacity .13s;
+  }
+  .veh:active{opacity:.6}
+  .veh-idx{font-size:12px;color:var(--ink-3);font-variant-numeric:tabular-nums;width:18px;flex-shrink:0}
+  .veh-ico{width:44px;height:44px;border-radius:12px;background:var(--field);border:1px solid var(--field-line);flex-shrink:0;overflow:hidden;background-size:cover;background-position:center}
+  .veh-ico svg{width:19px;height:19px;color:var(--ink-2);display:flex;align-items:center;justify-content:center;height:100%;margin:0 auto}
+  .veh-body{flex:1;min-width:0}
+  .veh-reg{font-size:15px;font-weight:660;letter-spacing:-.01em}
+  .veh-model{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+  .veh-meta{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink-3);margin-top:5px;flex-shrink:0}
+  .veh-arrow{color:var(--ink-3);flex-shrink:0}
+  .veh-arrow svg{width:16px;height:16px}
+
+  .docrow{
+    display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--field-line);border-radius:14px;
+    padding:14px 16px;margin-bottom:10px;cursor:pointer;
+  }
+  .docrow:active{opacity:.7}
+  .doc-ico{width:38px;height:38px;border-radius:10px;background:var(--field);border:1px solid var(--field-line);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+  .doc-ico.on{background:var(--green-soft);border-color:rgba(91,141,239,.3)}
+  .doc-ico svg{width:17px;height:17px;color:var(--ink-2)}
+  .doc-ico.on svg{color:var(--green)}
+  .doc-body{flex:1;min-width:0}
+  .doc-body h5{font-size:14.5px;font-weight:630;letter-spacing:-.015em}
+  .doc-body p{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+  .doc-status{font-size:12px;font-weight:640;color:var(--ink-3);flex-shrink:0}
+  .doc-status.on{color:var(--green)}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
+  .stat{background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-sm);padding:14px 12px;text-align:center}
+  .stat-v{font-size:19px;font-weight:720;letter-spacing:-.03em}
+  .stat-k{font-size:10px;font-weight:650;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-top:3px}
+
+  .entry{
+    display:flex;gap:15px;align-items:flex-start;background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-md);
+    padding:15px;margin-bottom:12px;cursor:pointer;transition:opacity .13s;
+  }
+  .entry:active{opacity:.7}
+  .thumb{width:52px;height:52px;border-radius:13px;flex-shrink:0;overflow:hidden;background:var(--field);border:1px solid var(--field-line);display:flex;align-items:center;justify-content:center}
+  .thumb svg{width:20px;height:20px;color:var(--green)}
+  .entry-body{flex:1;min-width:0}
+  .entry-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+  .entry-name{font-size:15.5px;font-weight:650;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .entry-amt{font-size:15.5px;font-weight:700;letter-spacing:-.025em;white-space:nowrap;flex-shrink:0}
+  .entry-desc{font-size:13.5px;color:var(--ink-2);margin:3px 0 7px;line-height:1.35}
+  .entry-foot{display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .entry-meta{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .tag{display:inline-block;font-size:10.5px;font-weight:640;letter-spacing:.02em;background:var(--green-soft);color:var(--green-mid);padding:4px 10px;border-radius:7px}
+  .tag.toll{background:rgba(232,163,61,.14);color:var(--amber)}
+
+  .empty{text-align:center;padding:44px 20px;color:var(--ink-3)}
+  .empty svg{width:34px;height:34px;margin-bottom:12px;color:var(--ink-3);opacity:.6}
+  .empty p{font-size:14.5px;line-height:1.5}
+
+  .capzone{
+    display:block;background:var(--card);border:1px solid var(--field-line);
+    border-radius:var(--r-lg);padding:34px 20px;text-align:center;position:relative;overflow:hidden;
+    margin-bottom:20px;cursor:pointer;transition:opacity .13s;
+  }
+  .capzone:active{opacity:.8}
+  .cap-btn{width:56px;height:56px;border-radius:14px;background:var(--green);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+  .cap-btn svg{width:23px;height:23px;color:#fff}
+  .cap-t{font-size:16.5px;font-weight:660;letter-spacing:-.02em;margin-bottom:6px;color:var(--ink)}
+  .cap-s{font-size:13px;color:var(--ink-3)}
+
+  .ai{display:none;align-items:center;gap:12px;border-radius:var(--r-md);padding:14px 16px;margin-bottom:20px;font-size:14px;background:var(--green-soft);border:1px solid rgba(91,141,239,.28)}
+  .ai.show{display:flex}
+  .ai-ic{width:20px;height:20px;flex-shrink:0;color:var(--green)}
+  .ai-tx{flex:1;color:var(--green-mid);font-weight:520;line-height:1.35}
+  .spin{width:18px;height:18px;border:2.2px solid rgba(59,111,224,.2);border-top-color:var(--green);border-radius:50%;animation:sp .7s linear infinite;flex-shrink:0}
+  @keyframes sp{to{transform:rotate(360deg)}}
+
+  .amt-wrap{position:relative}
+  .amt-wrap .cur{position:absolute;left:18px;top:50%;transform:translateY(-50%);font-size:16px;font-weight:600;color:var(--ink-3);pointer-events:none}
+  .amt-wrap .field{padding-left:38px}
+
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{padding:10px 15px;border-radius:10px;font-size:13.5px;font-weight:580;background:var(--field);border:1px solid var(--field-line);color:var(--ink-2);cursor:pointer;font-family:inherit;transition:all .14s}
+  .chip:active{transform:scale(.95)}
+  .chip.on{background:var(--green);border-color:var(--green);color:#fff;font-weight:640}
+
+  .pick{position:relative}
+  .pick .search-ic{position:absolute;left:18px;top:19px;width:18px;height:18px;color:var(--ink-3);pointer-events:none}
+  .pick .field{padding-left:47px}
+  .results{position:absolute;top:calc(100% + 7px);left:0;right:0;z-index:60;background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-md);max-height:220px;overflow-y:auto;box-shadow:var(--sh-lg);display:none}
+  .results.show{display:block}
+  .res{padding:13px 17px;cursor:pointer;border-bottom:1px solid rgba(28,35,30,.05)}
+  .res:last-child{border-bottom:none}
+  .res:active{background:var(--green-soft)}
+  .res-n{font-size:12.5px;font-weight:700;color:var(--green);letter-spacing:.01em}
+  .res-d{font-size:13.5px;color:var(--ink-2);margin-top:2px}
+  .picked{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--green-soft);border:1px solid rgba(91,141,239,.28);border-radius:var(--r-md);padding:14px 17px}
+  .picked-b{min-width:0}
+  .picked .res-n{color:var(--green-mid)}
+  .x{width:26px;height:26px;border-radius:var(--pill);background:rgba(255,255,255,.75);border:none;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--ink-2)}
+  .x svg{width:13px;height:13px}
+
+  .dcard{background:var(--card);border:none;border-radius:var(--r-md);padding:17px 19px;margin-bottom:11px}
+  .dk{font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:6px}
+  .dv{font-size:16px;line-height:1.4}
+  .dv.mono{font-variant-numeric:tabular-nums;font-weight:640;color:var(--green)}
+  .dv.big{font-size:25px;font-weight:730;letter-spacing:-.03em}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+
+  .xcard{display:flex;align-items:center;gap:15px;background:var(--card);border:none;border-radius:var(--r-md);padding:18px;margin-bottom:12px}
+  .xico{width:44px;height:44px;border-radius:13px;background:var(--green-soft);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .xico svg{width:20px;height:20px;color:var(--green-mid)}
+  .xbody{flex:1;min-width:0}
+  .xbody h4{font-size:15.5px;font-weight:640;letter-spacing:-.02em;margin-bottom:3px}
+  .xbody p{font-size:13px;color:var(--ink-3);line-height:1.4}
+
+  .sticky{position:sticky;bottom:0;padding:18px 0 calc(14px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(241,242,244,0) 0%,var(--page) 42%);margin-top:8px}
+
+  .policy-note{background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-md);padding:16px 18px;margin-bottom:20px;font-size:13px;color:var(--ink-2);line-height:1.55}
+
+  .auth-wrap{padding-top:14vh;text-align:center}
+  .auth-kick{font-size:11px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
+  .auth-h1{font-size:36px;font-weight:770;letter-spacing:-.02em;margin-bottom:14px}
+  .auth-sub{font-size:15px;line-height:1.55;color:var(--ink-2);margin:0 auto 40px;max-width:300px}
+  .auth-foot{font-size:12px;line-height:1.6;color:var(--ink-3);text-align:center;margin-top:24px;max-width:300px;margin-left:auto;margin-right:auto}
+  .credit{font-size:11px;font-weight:650;letter-spacing:.04em;color:var(--ink-3);margin-top:16px;text-align:center}
+
+  .toast{position:fixed;left:50%;bottom:34px;transform:translateX(-50%) translateY(16px);background:var(--ink);color:#fff;padding:14px 22px;border-radius:var(--pill);font-size:14px;font-weight:550;opacity:0;pointer-events:none;z-index:900;transition:opacity .25s,transform .25s;max-width:88%;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.24)}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .tabs{display:flex;gap:8px;margin-bottom:22px;overflow-x:auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex-shrink:0;padding:11px 18px;border-radius:11px;font-size:12.5px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;background:var(--card);border:1px solid var(--field-line);color:var(--ink-2);cursor:pointer;font-family:inherit;transition:all .14s}
+  .tab.on{background:#EDEFF3;color:#0B0F16}
+  .tabpane{display:none}
+  .tabpane.on{display:block}
+  .rulegroup{margin-bottom:26px}
+  .rulegroup h5{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);margin:0 0 12px 2px}
+  .rule{display:flex;gap:13px;align-items:flex-start;background:var(--card);border:1px solid var(--field-line);border-radius:14px;padding:16px 17px;margin-bottom:10px}
+  .rule-ic{width:22px;height:22px;border-radius:7px;background:var(--field);border:1px solid var(--field-line);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .rule-ic svg{width:12px;height:12px;color:var(--green)}
+  .rule.warn .rule-ic{background:rgba(232,163,61,.14);border-color:rgba(232,163,61,.3)}
+  .rule.warn .rule-ic svg{color:var(--amber)}
+  .rule p{font-size:14px;line-height:1.5;color:var(--ink-2)}
+  .rule b{font-weight:660;color:var(--ink)}
+
+  .intro{display:flex;gap:14px;align-items:flex-start;background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-lg);padding:20px 21px;margin:0 0 22px;cursor:pointer;transition:opacity .13s}
+  .intro:active{opacity:.7}
+  .intro-ic{width:42px;height:42px;border-radius:13px;background:var(--green-soft);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+  .intro-ic img{width:100%;height:100%;object-fit:cover}
+  .intro-ic svg{width:19px;height:19px;color:var(--green-mid)}
+  .intro-body h4{font-size:15.5px;font-weight:660;letter-spacing:-.015em;margin-bottom:7px;color:var(--ink)}
+  .intro-body p{font-size:13.5px;color:var(--ink-2);line-height:1.55;margin-bottom:11px}
+  .intro-link{font-size:13.5px;font-weight:640;color:var(--green-mid);display:inline-flex;align-items:center;gap:5px}
+
+  .faq{background:var(--card);border:1px solid var(--field-line);border-radius:14px;padding:16px 18px;margin-bottom:10px}
+  .faq summary{font-size:15px;font-weight:640;letter-spacing:-.015em;cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .faq summary::-webkit-details-marker{display:none}
+  .faq summary::after{content:'';width:9px;height:9px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(45deg);flex-shrink:0;transition:transform .2s}
+  .faq[open] summary::after{transform:rotate(-135deg)}
+  .faq p{font-size:14px;color:var(--ink-2);line-height:1.55;margin-top:12px}
+
+  /* ── Trip audit ── */
+  .modepill{display:inline-flex;align-items:center;gap:7px;background:var(--green-soft);border:1px solid rgba(91,141,239,.28);color:var(--green-mid);font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:8px 14px;border-radius:var(--pill);margin-bottom:18px}
+  .modepill.checkin{background:rgba(232,163,61,.14);border-color:rgba(232,163,61,.3);color:var(--amber)}
+  .aitem{background:var(--card);border:1px solid var(--field-line);border-radius:14px;padding:14px 16px;margin-bottom:9px}
+  .aitem-head{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer}
+  .aitem-name{font-size:14px;font-weight:600;letter-spacing:-.01em;flex:1;line-height:1.35}
+  .aitem-status{flex-shrink:0;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:6px 11px;border-radius:8px;background:var(--field);color:var(--ink-3);border:1px solid var(--field-line)}
+  .aitem-status.nf{background:rgba(180,54,42,.1);color:var(--red);border-color:rgba(180,54,42,.22)}
+  .aitem-status.np{background:rgba(232,163,61,.14);color:var(--amber);border-color:rgba(232,163,61,.3)}
+  .aitem-status.ok{background:rgba(30,142,90,.1);color:#1E8E5A;border-color:rgba(30,142,90,.22)}
+  .aitem-body{margin-top:13px;padding-top:13px;border-top:1px solid var(--field-line);display:none}
+  .aitem-body.show{display:block}
+  .aitem-choices{display:flex;gap:8px;margin-bottom:11px}
+  .aitem-choices .chip{flex:1;text-align:center;padding:10px 8px;font-size:12.5px}
+  .aitem-photo{display:flex;align-items:center;gap:10px;background:var(--field);border:1px dashed var(--field-line);border-radius:12px;padding:10px 12px;cursor:pointer;margin-bottom:10px;font-size:13px;color:var(--ink-2)}
+  .aitem-photo svg{width:16px;height:16px;flex-shrink:0;color:var(--ink-3)}
+  .aitem-photo img{width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0}
+  .aitem-comment{width:100%;background:var(--field);border:1px solid var(--field-line);border-radius:10px;padding:11px 13px;font-size:13.5px;font-family:inherit;color:var(--ink);outline:none;resize:vertical;min-height:56px}
+  .aitem-comment:focus{background:#fff;border-color:var(--green-mid)}
+  .audit-progress{font-size:12.5px;color:var(--ink-3);text-align:center;margin:4px 0 18px}
+  .odo-row{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--field-line);border-radius:var(--r-md);padding:14px 16px;margin-bottom:20px}
+  .odo-thumb{width:52px;height:52px;border-radius:12px;background:var(--field);border:1px solid var(--field-line);flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer}
+  .odo-thumb svg{width:20px;height:20px;color:var(--ink-3)}
+  .odo-thumb img{width:100%;height:100%;object-fit:cover}
+  .odo-body{flex:1;min-width:0}
+  .odo-body label{display:block;font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+  .odo-body input{width:100%;border:none;background:transparent;font-size:19px;font-weight:700;font-family:inherit;color:var(--ink);outline:none;padding:0}
+  .walk-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:22px}
+  .walk-slot{position:relative;aspect-ratio:4/3;border-radius:14px;background:var(--card);border:1.5px dashed var(--field-line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer;overflow:hidden;transition:opacity .13s}
+  .walk-slot:active{opacity:.75}
+  .walk-slot.done{border-style:solid;border-color:rgba(30,142,90,.3)}
+  .walk-slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .walk-slot svg{width:42px;height:42px;color:var(--ink-3)}
+  .walk-slot span{font-size:12px;font-weight:620;color:var(--ink-2);text-align:center;padding:0 8px}
+  .walk-slot .walk-badge{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:50%;background:#1E8E5A;display:flex;align-items:center;justify-content:center;z-index:2}
+  .walk-slot .walk-badge svg{width:11px;height:11px;color:#fff}
+  .walk-slot .walk-label-on{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(0deg,rgba(0,0,0,.55),transparent);color:#fff;font-size:11px;font-weight:650;padding:16px 8px 7px;text-align:center;z-index:1}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<div id="screen-auth" class="screen active">
+  <div class="auth-wrap">
+    <div style="width:172px;height:172px;border-radius:28px;overflow:hidden;margin:0 auto 18px;box-shadow:0 8px 26px rgba(0,0,0,.35)">
+      <img src="logo.png" alt="FleetBuddy" style="width:100%;height:100%;object-fit:cover">
+    </div>
+    <p class="auth-sub">Capture fuel and toll slips per vehicle, tag the driver and vote, and sync straight to your own Google Sheets and Drive.</p>
+    <button class="btn btn-primary" onclick="signInWithGoogle()" style="max-width:280px;margin:0 auto">
+      <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#fff" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" opacity=".95"/><path fill="#fff" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" opacity=".8"/><path fill="#fff" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" opacity=".65"/><path fill="#fff" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Continue with Google
+    </button>
+    <p class="auth-foot">Signed in with your WildTrust Google account. Entries sync to your own Drive - nothing is centralised.</p>
+  </div>
+</div>
+
+<div id="screen-home" class="screen">
+  <div class="greet">
+    <div class="greet-txt">
+      <span>WildOceans Fleet</span>
+      <h1>FleetBuddy</h1>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="icon-btn" onclick="goGuide()" title="Guide and policy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="11.5"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+      </button>
+      <button class="icon-btn" onclick="confirmSignOut()" title="Sign out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="statrow">
+    <div class="statcard">
+      <div class="statcard-k">Open</div>
+      <div class="statcard-v" id="heroCount">0</div>
+      <div class="statcard-sub" id="heroSub">of 16 vehicles</div>
+    </div>
+    <div class="statcard">
+      <div class="statcard-k">Cycle</div>
+      <div class="statcard-v big" id="cycleLabel">August 2026</div>
+      <div class="statcard-flag"><span class="dot amber"></span><span>Awaiting sync</span></div>
+    </div>
+  </div>
+
+  <div class="intro" onclick="goGuide()">
+    <div class="intro-ic"><img src="logo.png" alt="FleetBuddy"></div>
+    <div class="intro-body">
+      <h4>What FleetBuddy is for</h4>
+      <p>Capture fuel and toll slips per vehicle, tag the driver and vote, and keep every month's reconciliation ready to sync to Sheets - no more building it by hand from three separate reports.</p>
+      <span class="intro-link">Read the full guide <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+    </div>
+  </div>
+
+  <div class="sec-label">Fleet feed</div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="vehSearch" placeholder="Filter by reg or model" oninput="renderVehicles()">
+  </div>
+  <div id="vehList" style="padding-bottom:78px"></div>
+
+  <div class="sticky">
+    <button class="btn btn-ghost" onclick="goAuditPick()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Trip Audit
+    </button>
+  </div>
+</div>
+
+<div id="screen-policy" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="goHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="topbar-mid"><h2>Vehicle policy</h2><p>WildTrust Vehicle and Travel Policy</p></div>
+    <div class="spacer-44"></div>
+  </div>
+
+  <div class="policy-note">
+    Signed WildTrust Vehicle and Travel Policy - opens in your browser's own PDF viewer.
+  </div>
+
+  <div class="xcard">
+    <div class="xico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+    <div class="xbody"><h4>WildTrust Vehicle and Travel Policy</h4><p>Signed PDF, updated 16 March 2026</p></div>
+    <a class="btn btn-primary btn-sm" href="policy/WildTrust-Vehicle-and-Travel-Policy.pdf" target="_blank" rel="noopener">Open</a>
+  </div>
+</div>
+
+<div id="screen-vehicle" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="goHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="topbar-mid"><h2 id="vTitle">BM 86XZZN</h2><p id="vSub">Isuzu D-Max</p></div>
+    <button class="icon-btn" onclick="goExport()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>
+  </div>
+
+  <div class="sec-label">Monthly reports</div>
+  <label class="docrow" for="fileMove">
+    <div class="doc-ico" id="docIcoMove"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+    <div class="doc-body"><h5>Daily Movement Report</h5><p>Trip log, driver reference</p></div>
+    <div class="doc-status" id="docStatMove">Upload</div>
+  </label>
+  <input type="file" id="fileMove" accept=".xlsx,.xls,.csv" style="display:none" onchange="onReportFile(this,'movement')">
+  <label class="docrow" for="fileAnalysis" style="margin-bottom:22px">
+    <div class="doc-ico" id="docIcoAnalysis"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+    <div class="doc-body"><h5>Vehicle Analysis Report</h5><p>Card transactions, amounts</p></div>
+    <div class="doc-status" id="docStatAnalysis">Upload</div>
+  </label>
+  <input type="file" id="fileAnalysis" accept=".xlsx,.xls,.csv" style="display:none" onchange="onReportFile(this,'analysis')">
+
+  <div class="stats">
+    <div class="stat"><div class="stat-v" id="statCount">0</div><div class="stat-k">Slips</div></div>
+    <div class="stat"><div class="stat-v" id="statTotal">R0</div><div class="stat-k">Total</div></div>
+    <div class="stat"><div class="stat-v" id="statPend">0</div><div class="stat-k">No vote</div></div>
+  </div>
+
+  <div class="sec-label">Slips this month</div>
+  <div id="entryList" style="padding-bottom:78px"></div>
+
+  <div class="sticky">
+    <button class="btn btn-primary" onclick="goCapture()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      New slip
+    </button>
+  </div>
+</div>
+
+<div id="screen-audit-pick" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="goHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="topbar-mid"><h2>Trip Audit</h2><p>Pick a vehicle</p></div>
+    <div class="spacer-44"></div>
+  </div>
+  <div class="search-wrap">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="auditVehSearch" placeholder="Filter by reg or model" oninput="renderAuditVehicles()">
+  </div>
+  <div id="auditVehList"></div>
+</div>
+
+<div id="screen-audit" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="goAuditPick()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="topbar-mid"><h2 id="auditVeh">BM 86XZZN</h2><p id="auditVehSub">Isuzu D-Max</p></div>
+    <div class="spacer-44"></div>
+  </div>
+
+  <div id="auditModePill" class="modepill">Checkout</div>
+
+  <div class="fgroup">
+    <label class="label">Driver</label>
+    <input type="text" class="field" id="aDriver" placeholder="Who is driving" autocomplete="off">
+  </div>
+  <div class="fgroup" id="auditPurposeGroup">
+    <label class="label">Trip purpose</label>
+    <input type="text" class="field" id="aPurpose" placeholder="e.g. Site visit - uThukela" autocomplete="off">
+  </div>
+
+  <div class="odo-row">
+    <label class="odo-thumb" id="odoThumbOut" for="fileOdoOut">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+    </label>
+    <input type="file" id="fileOdoOut" accept="image/*" capture="environment" style="display:none" onchange="onOdoPhoto(this,'out')">
+    <div class="odo-body">
+      <label>Mileage out</label>
+      <input type="number" inputmode="numeric" id="aMileageOut" placeholder="Tap the icon to photograph the odometer">
+    </div>
+  </div>
+
+  <div class="odo-row" id="odoInRow" style="display:none">
+    <label class="odo-thumb" id="odoThumbIn" for="fileOdoIn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>
+    </label>
+    <input type="file" id="fileOdoIn" accept="image/*" capture="environment" style="display:none" onchange="onOdoPhoto(this,'in')">
+    <div class="odo-body">
+      <label>Mileage in</label>
+      <input type="number" inputmode="numeric" id="aMileageIn" placeholder="Tap the icon to photograph the odometer">
+    </div>
+  </div>
+
+  <div class="ai" id="odoAiBar">
+    <div class="spin" id="odoAiSpin"></div>
+    <div class="ai-tx" id="odoAiTx">Reading odometer...</div>
+  </div>
+
+  <div class="sec-label" id="walkLabel">Photo walkaround</div>
+  <p class="audit-progress" id="walkProgress">0 of 8 angles photographed</p>
+  <div class="walk-grid" id="walkGrid"></div>
+
+  <div class="sec-label" id="checklistLabel">Vehicle checklist</div>
+  <p class="audit-progress" id="auditProgress">Everything defaults to Functional - only tap an item to report a problem</p>
+  <div id="auditChecklist"></div>
+
+  <div class="sec-label">First aid kit</div>
+  <div class="aitem">
+    <div class="aitem-head" onclick="toggleFirstAid()">
+      <div class="aitem-name">Checked and complete this week</div>
+      <div class="aitem-status ok" id="firstAidStatus">Yes</div>
+    </div>
+    <p id="firstAidNote" style="font-size:12px;color:var(--ink-3);margin-top:8px"></p>
+  </div>
+
+  <div class="fgroup" style="margin-top:20px">
+    <label class="label">Additional comments</label>
+    <textarea class="aitem-comment" id="aComments" placeholder="Anything else worth flagging" style="min-height:70px"></textarea>
+  </div>
+
+  <button class="btn btn-primary" id="bAuditSubmit" onclick="submitAudit()">Complete checkout</button>
+</div>
+
+<div id="screen-capture" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="goVehicle()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="topbar-mid"><h2>New slip</h2><p id="capVeh">BM 86XZZN</p></div>
+    <div class="spacer-44"></div>
+  </div>
+
+  <label class="capzone" id="capzone" for="filePhoto">
+    <div class="cap-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg></div>
+    <div class="cap-t">Capture slip</div>
+    <div class="cap-s">Fuel or toll slip - tap to photograph or choose one</div>
+  </label>
+  <input type="file" id="filePhoto" accept="image/*" capture="environment" style="display:none" onchange="onPhoto(this)">
+
+  <div class="ai" id="aiBar">
+    <div class="spin" id="aiSpin"></div>
+    <div class="ai-tx" id="aiTx">Reading slip...</div>
+  </div>
+
+  <div class="fgroup">
+    <label class="label">Slip type</label>
+    <div class="chips" id="typeChips">
+      <button class="chip on" data-t="Fuel" onclick="setType(this,'Fuel')">Fuel</button>
+      <button class="chip" data-t="Toll" onclick="setType(this,'Toll')">Toll</button>
+    </div>
+  </div>
+
+  <div class="frow fgroup">
+    <div>
+      <label class="label">Date</label>
+      <input type="date" class="field" id="fDate">
+    </div>
+    <div>
+      <label class="label">Amount (ZAR)</label>
+      <div class="amt-wrap"><span class="cur">R</span><input type="number" inputmode="decimal" class="field" id="fAmount" placeholder="0.00" step="0.01" min="0"></div>
+    </div>
+  </div>
+
+  <div class="fgroup">
+    <label class="label">Station / merchant</label>
+    <input type="text" class="field" id="fStation" placeholder="e.g. Engen Ushaka Convenience">
+  </div>
+
+  <div class="fgroup">
+    <label class="label">KM reading</label>
+    <input type="number" class="field" id="fKm" placeholder="From vehicle analysis report - editable">
+  </div>
+
+  <div class="fgroup">
+    <label class="label">Driver</label>
+    <input type="text" class="field" id="fDriver" placeholder="Type who was driving - no autocomplete" autocomplete="off">
+  </div>
+
+  <div class="fgroup">
+    <label class="label">Project</label>
+    <input type="text" class="field" id="fProject" placeholder="e.g. WildOceans, Isimangaliso MPA" autocomplete="off">
+  </div>
+
+  <div class="fgroup">
+    <label class="label">Vote number</label>
+    <div class="pick" id="votePick">
+      <div id="voteChosen" style="display:none">
+        <div class="picked">
+          <div class="picked-b"><div class="res-n" id="vNum"></div><div class="res-d" id="vDesc"></div></div>
+          <button class="x" onclick="clearVote()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+      </div>
+      <div id="voteSearchBox">
+        <svg class="search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="field" id="fVote" placeholder="Search vote by code or trip purpose" oninput="searchVotes(this.value)" onfocus="searchVotes(this.value)" autocomplete="off">
+        <div class="results" id="voteResults"></div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn btn-primary" onclick="saveEntry()">Save slip</button>
+  <button class="btn btn-danger" id="bDelete" onclick="deleteEntry()" style="display:none;margin-top:10px">Delete slip</button>
+</div>
+
+<div id="screen-export" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="goVehicle()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="topbar-mid"><h2>Export</h2><p id="xSub">BM 86XZZN - July 2026</p></div>
+    <div class="spacer-44"></div>
+  </div>
+  <div class="xcard">
+    <div class="xico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3" y="3" width="18" height="18" rx="2.5"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+    <div class="xbody"><h4>Sync to Google Sheets</h4><p>Writes to this vehicle's month tab(s) in Drive, sorted by date</p></div>
+    <button class="btn btn-primary btn-sm" id="bSync" onclick="syncVehicle()">Sync</button>
+  </div>
+  <div class="xcard">
+    <div class="xico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/><rect x="3" y="3" width="18" height="18" rx="2.5"/></svg></div>
+    <div class="xbody"><h4>Upload slip photos</h4><p>Push captured images to this vehicle's Drive folder</p></div>
+    <button class="btn btn-ghost btn-sm" id="bUpload" onclick="uploadSlipPhotos()">Upload</button>
+  </div>
+  <p id="syncStatus" style="font-size:12.5px;color:var(--ink-3);text-align:center;margin-top:6px"></p>
+</div>
+
+<div id="screen-guide" class="screen">
+  <div class="topbar">
+    <button class="icon-btn" onclick="goHome()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+    <div class="topbar-mid"><h2>Guide and policy</h2><p>WildTrust Vehicle and Travel Policy</p></div>
+    <div class="spacer-44"></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab on" data-t="how" onclick="guideTab('how',this)">How it works</button>
+    <button class="tab" data-t="fuel" onclick="guideTab('fuel',this)">Fuel and tolls</button>
+    <button class="tab" data-t="driving" onclick="guideTab('driving',this)">Driving rules</button>
+    <button class="tab" data-t="new" onclick="guideTab('new',this)">What's new 2026</button>
+    <button class="tab" data-t="faq" onclick="guideTab('faq',this)">FAQ</button>
+  </div>
+
+  <div class="xcard" onclick="goPolicy()">
+    <div class="xico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+    <div class="xbody"><h4>Vehicle policy</h4><p>WildTrust Vehicle and Travel Policy PDF</p></div>
+  </div>
+
+  <div id="tab-how" class="tabpane on">
+    <div class="rulegroup">
+      <h5>Quick start</h5>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>1. Pick the vehicle</b> - select it from the pool of 16 before uploading anything.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>2. Upload the monthly reports</b> - Daily Movement Report and Vehicle Analysis Report for that vehicle, as soon as fleet sends them.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>3. Capture each slip</b> - fuel or toll. Let the AI read it, then check the fields.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>4. Type the driver, manually</b> - no shortcuts, no saved list. Write who was actually driving.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>5. Search the vote line</b> - only this field is searchable, from the WildOceans vote list.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>6. Sync</b> - pushes the vehicle's slips into its Google Sheets tab for that month, sorted by date.</p></div>
+    </div>
+  </div>
+
+  <div id="tab-fuel" class="tabpane">
+    <div class="rulegroup">
+      <h5>Deadlines</h5>
+      <div class="rule warn"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><p>Monthly fuel card and e-tag reconciliations, plus supporting slips, are due to finance/fleet by the <b>5th of every month</b>.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>Original slips and recons must still be batched and handed to finance/fleet after electronic submission, for audit and safekeeping.</p></div>
+    </div>
+    <div class="rulegroup">
+      <h5>Slips</h5>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>Fuel only on the card dedicated to that specific vehicle. Every slip must be reconciled with the fuel card statement and submitted with its vote number and manager approval.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>Only legible slips are accepted. Faded slips will be rejected - it's the driver's responsibility to keep them readable.</p></div>
+      <div class="rule warn"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><p>Missing slips get deducted from the driver's salary. You have up to <b>45 days</b> to submit a missing or rejected slip before that recovery happens.</p></div>
+    </div>
+    <div class="rulegroup">
+      <h5>E-tags</h5>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>All Trust vehicles now carry vehicle-specific e-tags for toll payment. Don't tamper with or remove one for any reason unless fleet or finance says so.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>If an e-tag fails, the driver falls back to a physical toll slip - that's what the Toll slip type in this app is for.</p></div>
+    </div>
+  </div>
+
+  <div id="tab-driving" class="tabpane">
+    <div class="rulegroup">
+      <h5>Basics</h5>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>Trust vehicles are for work purposes only. Zero tolerance on traffic law violations - can lead to a disciplinary hearing or dismissal.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>Each driver gets a Blue Driver Identity Tag, uniquely coded. Never swap or lend your tag to another driver.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>When vehicles are shared between drivers, an audit sheet must be completed on collection and return.</p></div>
+    </div>
+    <div class="rulegroup">
+      <h5>Night driving and fatigue</h5>
+      <div class="rule warn"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><p>Night driving is prohibited without written manager permission (roughly 6pm-6am winter, 7pm-5am summer). Emergencies still require notifying your manager immediately.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>Long-distance trips need pre-planned driver rotation and rest stops to manage fatigue.</p></div>
+    </div>
+    <div class="rulegroup">
+      <h5>Fraud</h5>
+      <div class="rule warn"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><p>Claiming personal-vehicle mileage for a trip actually done in a Trust vehicle, or claiming travel you weren't present for, is fraud - can mean termination.</p></div>
+    </div>
+    <div class="rulegroup">
+      <h5>Accidents and incidents</h5>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>Any accident, however minor, must be reported to SAPS for a case number and to the fleet department immediately. A signed Accident Report is due within 24 hours.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p>Each vehicle has a roadside assist QR code on the windscreen - scan it for step-by-step help after a breakdown or incident.</p></div>
+    </div>
+  </div>
+
+  <div id="tab-new" class="tabpane">
+    <div class="rulegroup">
+      <h5>Changed in the 16 March 2026 policy</h5>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>Hire booking window shortened</b> - was 5 days before pickup, now 2-3 days.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>E-tags replace magnetic toll cards</b> - vehicle-specific, installed fleet-wide.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>Dash cams formalised</b> - inside and outside coverage, cloud-stored, usable for investigations, safety monitoring, training or legal purposes.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>Roadside assistance QR codes</b> added to every windscreen.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>Non-staff drivers</b> now need ID copy, licence copy, proof of residence, indemnity form and signed asset use agreement.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>Hired vehicle checklists</b> - check-in and check-out inspection forms now required.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>Fraud clarified</b> - personal-mileage claims for Trust-vehicle trips, and absent-driver claims, explicitly called out as fraud.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>Stronger road safety provisions</b> - night driving restrictions, fatigue management on long trips, tighter tracking and dash cam monitoring.</p></div>
+      <div class="rule"><div class="rule-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg></div><p><b>Non-staff passengers restricted</b> - only trustees, donors, visitors, research students or similar, with a signed indemnity form.</p></div>
+    </div>
+  </div>
+
+  <div id="tab-faq" class="tabpane">
+    <details class="faq"><summary>Which slips go into this app?</summary><p>Fuel slips mainly, since e-tags now cover tolls. If an e-tag fails, submit the physical toll slip instead and mark it as type Toll.</p></details>
+    <details class="faq"><summary>Why can't I search for the driver's name?</summary><p>On purpose. Someone has to actually type who was driving, every time, rather than pick the last name off a list. Keeps the entry honest.</p></details>
+    <details class="faq"><summary>Where does the vote list come from?</summary><p>The same WildOceans vote listing ReconEasy uses - one project per tab, vote number and description per line.</p></details>
+    <details class="faq"><summary>What if I don't know the vote number?</summary><p>Check with your project manager before saving the slip. Don't guess - fuel and toll reconciliations with the wrong vote get rejected by finance.</p></details>
+    <details class="faq"><summary>What happens when I tap Sync?</summary><p>Every slip captured for that vehicle gets written into its Google Sheets tab for the month, sorted by date from the 1st to month end - even if you uploaded reports out of order.</p></details>
+    <details class="faq"><summary>Do I still need the paper slip after capturing it?</summary><p>Yes. The policy still requires original slips to reach finance for audit and safekeeping - this app doesn't replace that step.</p></details>
+    <details class="faq"><summary>What if I miss the 5th of the month deadline?</summary><p>You get up to 45 days to submit a missing or rejected slip before it's recovered from your salary - but don't wait, submit as soon as you have it.</p></details>
+  </div>
+
+  <div class="sec-label" style="margin-top:26px">Account</div>
+  <div class="docrow" onclick="confirmSignOut()">
+    <div class="doc-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>
+    <div class="doc-body"><h5 id="acctName">Signed in</h5><p id="acctEmail">-</p></div>
+    <div class="doc-status">Sign out</div>
+  </div>
+</div>
+
+<div class="app-footer" style="display:none">
+  <div class="footer-top">
+    <div class="footer-mark"><img src="favicon.png" alt="FleetBuddy"></div>
+    <div class="footer-div"></div>
+    <div class="footer-wt"><img class="ring" src="wildtrust-ring.png" alt=""><img class="word" src="wildtrust-wordmark.png" alt="WildTrust"></div>
+  </div>
+  <div class="footer-copy">© 2026 WILDOCEANS, IT</div>
+</div>
+
+<script>
+const BADGES = {
+  isuzu: "data:image/jpeg;base64,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",
+  nissan: "data:image/jpeg;base64,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",
+  ford: "data:image/jpeg;base64,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"
+};
+function makeOf(model){
+  const m=model.toLowerCase();
+  if(m.includes('isuzu'))return 'isuzu';
+  if(m.includes('nissan'))return 'nissan';
+  if(m.includes('ford'))return 'ford';
+  return null;
+}
+const VEHICLES = [
+  {reg:"DB 40 CXZN", model:"Nissan NP200", base:"Durban Office"},
+  {reg:"DB 40 CNZN", model:"Nissan NP200", base:"Durban Office"},
+  {reg:"DF 48 LWZN", model:"Nissan NP200", base:"Durban Office"},
+  {reg:"DB 40 CPZN", model:"Isuzu D-Max", base:"uThukela Project"},
+  {reg:"DB 40 CTZN", model:"Isuzu D-Max", base:"uThukela Project"},
+  {reg:"BM 86 WZZN", model:"Isuzu D-Max", base:"iSimangaliso Project"},
+  {reg:"BM 86 XZZN", model:"Isuzu D-Max", base:"iSimangaliso Project"},
+  {reg:"CR 13 WRZN", model:"Isuzu D-Max", base:"iSimangaliso Project"},
+  {reg:"BM 86 ZBZN", model:"Isuzu D-Max", base:"iSimangaliso Project"},
+  {reg:"BM 87 BCZN", model:"Isuzu D-Max", base:"iSimangaliso Project"},
+  {reg:"DK 13 MYZN", model:"Isuzu D-Max", base:"uThukela Hub"},
+  {reg:"DB 40 CRZN", model:"Ford Ranger", base:"uThukela Hub"},
+  {reg:"DB 40 CSZN", model:"Ford Ranger", base:"uThukela Hub"},
+  {reg:"BN 88 FWZN", model:"Nissan NP200", base:"iSimangaliso Hub"},
+  {reg:"DB 40 CZZN", model:"Isuzu D-Max", base:"iSimangaliso Hub"},
+  {reg:"DB 40 DBZN", model:"Isuzu D-Max", base:"iSimangaliso Hub"}
+];
+const VOTES = [
+  {n:"727-3121-E-8503", d:"TLF - Support for Isimangaliso MPA - Exp - Travel"},
+  {n:"727-3140-E-2210", d:"WildOceans - Marine Operations - Fuel and Vehicle"},
+  {n:"727-3155-E-1180", d:"WildOceans - Community Hub Logistics"},
+  {n:"727-3199-E-0044", d:"WildTrust General Fleet - Admin Travel"},
+  {n:"727-3161-E-7702", d:"Reef Guardians - Field Monitoring Travel"}
+];
+/* ═══════════ CONFIG ═══════════ */
+const WORKER_URL       = 'https://reconeasy-worker.nxrth98.workers.dev';
+const GOOGLE_CLIENT_ID = '419380799116-k9dnh5p4i66r1kulqdjirj6uh3ojenrv.apps.googleusercontent.com';
+const REDIRECT_URI     = 'https://nxrth98.github.io/fleetbuddy';
+const SCOPES           = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email';
+const VOTE_SHEET_ID    = '1GrLCv_s_WTvjksuZI50NANHtXZnnwcdxVbYMWL-qurc';
+const SHEET_TABS = ['Oneil Campaign','Becht Sharks','High Seas Alliance','Sharks III','ETF III','Hifadhi Blu','NEKTON Expedition','PEW PEI','BBP','The Light Foundation','NRF Kelp Bed','ORRA','Ocean Kind','BAF iSimangaliso','SSF','Sharks II','BAF uThukela','RFT','Blue Port WRC','Blue Port','Whale Time','Angra Maintenance'];
+
+/* ═══════════ STATE ═══════════ */
+let VOTE_DB = [];
+let token = null, user = null;
+let currentVeh = null;
+let capType = 'Fuel';
+let photoData = null;
+let voteChosen = null;
+
+/* ═══════════ HELPERS ═══════════ */
+const $ = id => document.getElementById(id);
+const esc = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const slugReg = reg => reg.replace(/\s+/g,'').toUpperCase();
+const getEntries = reg => { try{ return JSON.parse(localStorage.getItem('fb_entries_'+reg) || '[]'); }catch(e){ return []; } };
+const setEntries = (reg,list) => localStorage.setItem('fb_entries_'+reg, JSON.stringify(list));
+const getDocs = reg => { try{ return JSON.parse(localStorage.getItem('fb_docs_'+reg) || '{}'); }catch(e){ return {}; } };
+const setDocs = (reg,d) => localStorage.setItem('fb_docs_'+reg, JSON.stringify(d));
+
+let toastT;
+function toast(msg){
+  const t=$('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('show'),2800);
+}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  $(id).classList.add('active');
+  const footer = document.querySelector('.app-footer');
+  if(footer) footer.style.display = (id === 'screen-auth') ? 'none' : '';
+  window.scrollTo(0,0);
+}
+
+/* ═══════════ AUTH ═══════════ */
+function initAuth(){
+  const h = window.location.hash;
+  if(h && h.includes('access_token')){
+    const p = new URLSearchParams(h.substring(1));
+    const t = p.get('access_token');
+    if(t){
+      token = t; localStorage.setItem('fb_token', t);
+      history.replaceState({}, document.title, window.location.pathname);
+      fetchProfile(); return;
+    }
+  }
+  const su = localStorage.getItem('fb_user'), st = localStorage.getItem('fb_token');
+  if(su && st){ try{ user=JSON.parse(su); token=st; signedIn(); return; }catch(e){} }
+  show('screen-auth');
+}
+function signInWithGoogle(){
+  window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + new URLSearchParams({
+    client_id: GOOGLE_CLIENT_ID, redirect_uri: REDIRECT_URI,
+    response_type:'token', scope: SCOPES, include_granted_scopes:'true'
+  });
+}
+async function fetchProfile(){
+  try{
+    const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+token}});
+    const p = await r.json();
+    user = { name:p.name, email:p.email, picture:p.picture };
+    localStorage.setItem('fb_user', JSON.stringify(user));
+    signedIn();
+  }catch(e){ toast('Could not load your Google profile'); show('screen-auth'); }
+}
+function signedIn(){
+  const nameEl=$('acctName'), emailEl=$('acctEmail');
+  if(nameEl) nameEl.textContent = user.name || 'Signed in';
+  if(emailEl) emailEl.textContent = user.email || '';
+  goHome();
+  loadVotes();
+}
+function confirmSignOut(){
+  if(!confirm('Sign out? Entries already saved on this device stay here - sign back in any time.')) return;
+  token=null; user=null;
+  localStorage.removeItem('fb_user'); localStorage.removeItem('fb_token');
+  show('screen-auth');
+}
+async function ensureToken(){ if(token) return true; signInWithGoogle(); return false; }
+async function gFetch(url,opt={}){
+  const r = await fetch(url,{...opt, headers:{Authorization:'Bearer '+token, ...(opt.headers||{})}});
+  if(r.status===401){ token=null; localStorage.removeItem('fb_token'); toast('Session expired - sign in again'); show('screen-auth'); throw new Error('expired'); }
+  return r;
+}
+
+/* ═══════════ VOTES ═══════════ */
+async function loadVotes(){
+  const cached = localStorage.getItem('fb_votes');
+  if(cached){ try{ VOTE_DB=JSON.parse(cached); }catch(e){} }
+  if(!token) return;
+  try{
+    const out=[];
+    for(const tab of SHEET_TABS){
+      try{
+        const r = await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${VOTE_SHEET_ID}/values/${encodeURIComponent(tab)}!A:B`);
+        const d = await r.json();
+        (d.values||[]).forEach(row=>{
+          if(row[0] && row[1] && !/^vote\s*number$/i.test(row[0])) out.push({number:String(row[0]).trim(), description:String(row[1]).trim()});
+        });
+      }catch(e){}
+    }
+    if(out.length){ VOTE_DB=out; localStorage.setItem('fb_votes', JSON.stringify(out)); }
+  }catch(e){}
+}
+function searchVotes(q){
+  const box=$('voteResults'); q=(q||'').trim().toLowerCase();
+  if(!q){ box.classList.remove('show'); return; }
+  const hits = VOTE_DB.filter(v=>v.number.toLowerCase().includes(q)||v.description.toLowerCase().includes(q)).slice(0,14);
+  box.innerHTML = hits.length
+    ? hits.map(v=>`<div class="res" onclick='pickVote(${JSON.stringify(v.number)},${JSON.stringify(v.description)})'><div class="res-n">${esc(v.number)}</div><div class="res-d">${esc(v.description)}</div></div>`).join('')
+    : '<div class="res" style="color:var(--ink-3)">No matching vote found</div>';
+  box.classList.add('show');
+}
+function pickVote(n,d){
+  voteChosen={number:n,description:d};
+  $('vNum').textContent=n; $('vDesc').textContent=d;
+  $('voteChosen').style.display='block';
+  $('voteSearchBox').style.display='none';
+  $('voteResults').classList.remove('show');
+}
+function clearVote(){
+  voteChosen=null;
+  $('voteSearchBox').style.display='block';
+  $('voteChosen').style.display='none';
+  $('fVote').value=''; $('voteResults').classList.remove('show');
+}
+document.addEventListener('click', e=>{
+  if(!e.target.closest('#votePick')) $('voteResults').classList.remove('show');
+});
+
+/* ═══════════ NAV ═══════════ */
+function goHome(){ show('screen-home'); renderVehicles(); }
+function goVehicle(){ show('screen-vehicle'); renderVehicle(); }
+function goCapture(){ show('screen-capture'); resetCapture(); }
+function goExport(){ show('screen-export'); $('xSub').textContent=currentVeh.reg+' \u00b7 '+currentVeh.base; }
+function goGuide(){ show('screen-guide'); }
+function goPolicy(){ show('screen-policy'); }
+function goAuditPick(){ show('screen-audit-pick'); renderAuditVehicles(); }
+function guideTab(t,btn){
+  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.tabpane').forEach(x=>x.classList.remove('on'));
+  $('tab-'+t).classList.add('on');
+}
+
+function renderVehicles(){
+  const q=($('vehSearch').value||'').toLowerCase();
+  const list=VEHICLES.filter(v=>v.reg.toLowerCase().includes(q)||v.model.toLowerCase().includes(q)||v.base.toLowerCase().includes(q));
+  const wrap=$('vehList');
+  wrap.innerHTML=list.map((v,i)=>{
+    const c=getEntries(v.reg).length;
+    const mk=makeOf(v.model);
+    const icoStyle=mk?` style="background-image:url('${BADGES[mk]}')"`:'';
+    const icoInner=mk?'':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm14 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0M5 17V9l2-5h10l2 5v8"/></svg>';
+    return `<div class="veh" onclick="openVehicle('${v.reg}')">
+      <div class="veh-idx">${String(i+1).padStart(2,'0')}</div>
+      <div class="veh-ico"${icoStyle}>${icoInner}</div>
+      <div class="veh-body"><div class="veh-reg">${v.reg}</div><div class="veh-model">${v.model} \u00b7 ${v.base}</div></div>
+      <div class="veh-meta">${c} slip${c===1?'':'s'}</div>
+      <div class="veh-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></div>
+    </div>`;
+  }).join('');
+  const open = VEHICLES.filter(v=>getEntries(v.reg).length>0).length;
+  $('heroCount').textContent = open;
+  $('cycleLabel').textContent = new Date().toLocaleDateString('en-ZA',{month:'long',year:'numeric'});
+}
+
+function openVehicle(reg){
+  currentVeh=VEHICLES.find(v=>v.reg===reg);
+  goVehicle();
+}
+
+function renderAuditVehicles(){
+  const q=($('auditVehSearch').value||'').toLowerCase();
+  const list=VEHICLES.filter(v=>v.reg.toLowerCase().includes(q)||v.model.toLowerCase().includes(q)||v.base.toLowerCase().includes(q));
+  const wrap=$('auditVehList');
+  wrap.innerHTML=list.map((v,i)=>{
+    const open=openAuditFor(v.reg);
+    const mk=makeOf(v.model);
+    const icoStyle=mk?` style="background-image:url('${BADGES[mk]}')"`:'';
+    const icoInner=mk?'':'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 17h14M5 17a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm14 0a2 2 0 1 0 4 0 2 2 0 0 0-4 0M5 17V9l2-5h10l2 5v8"/></svg>';
+    return `<div class="veh" onclick="openAuditVehicle('${v.reg}')">
+      <div class="veh-idx">${String(i+1).padStart(2,'0')}</div>
+      <div class="veh-ico"${icoStyle}>${icoInner}</div>
+      <div class="veh-body"><div class="veh-reg">${v.reg}</div><div class="veh-model">${v.model} \u00b7 ${v.base}</div></div>
+      <div class="veh-meta">${open?'Out on trip':''}</div>
+      <div class="veh-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"/></svg></div>
+    </div>`;
+  }).join('');
+}
+function openAuditVehicle(reg){
+  currentVeh=VEHICLES.find(v=>v.reg===reg);
+  goAudit();
+}
+
+/* ═══════════ MONTHLY REPORTS (Drive upload) ═══════════ */
+function onReportFile(input, kind){
+  if(!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  const d = getDocs(currentVeh.reg);
+  d[kind] = { name: file.name, uploaded:false };
+  setDocs(currentVeh.reg, d);
+  // stash the actual file object in memory for this session's sync/upload step
+  window._pendingReportFiles = window._pendingReportFiles || {};
+  window._pendingReportFiles[currentVeh.reg+'_'+kind] = file;
+  toast(file.name+' ready - will upload to Drive on next Sync');
+  renderVehicle();
+}
+
+function renderVehicle(){
+  $('vTitle').textContent=currentVeh.reg;
+  $('vSub').textContent=currentVeh.model+' \u00b7 '+currentVeh.base;
+  const d=getDocs(currentVeh.reg);
+  $('docIcoMove').className='doc-ico'+(d.movement?' on':'');
+  $('docStatMove').className='doc-status'+(d.movement?' on':'');
+  $('docStatMove').textContent=d.movement?(d.movement.uploaded?'Uploaded':'Ready to sync'):'Upload';
+  $('docIcoAnalysis').className='doc-ico'+(d.analysis?' on':'');
+  $('docStatAnalysis').className='doc-status'+(d.analysis?' on':'');
+  $('docStatAnalysis').textContent=d.analysis?(d.analysis.uploaded?'Uploaded':'Ready to sync'):'Upload';
+
+  const list=getEntries(currentVeh.reg);
+  $('statCount').textContent=list.length;
+  const total=list.reduce((s,e)=>s+(parseFloat(e.amount)||0),0);
+  $('statTotal').textContent='R'+total.toLocaleString('en-ZA',{maximumFractionDigits:0});
+  $('statPend').textContent=list.filter(e=>!e.voteNum).length;
+
+  const wrap=$('entryList');
+  if(!list.length){
+    wrap.innerHTML=`<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg><p>No slips captured yet for this vehicle.<br>Tap New slip to add the first one.</p></div>`;
+    return;
+  }
+  wrap.innerHTML=[...list].sort((a,b)=>(a.date||'').localeCompare(b.date||'')).map(e=>`
+    <div class="entry" onclick="goDetail('${e.id}')">
+      <div class="thumb">${e.slipImage?`<img src="${e.slipImage}" style="width:100%;height:100%;object-fit:cover;border-radius:13px">`:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>`}</div>
+      <div class="entry-body">
+        <div class="entry-top"><div class="entry-name">${esc(e.station)||'Unnamed station'}</div><div class="entry-amt">R${(parseFloat(e.amount)||0).toFixed(2)}</div></div>
+        <div class="entry-desc">${esc(e.driver)||'Driver not entered'} \u00b7 ${e.date||''}</div>
+        <div class="entry-foot"><div class="entry-meta">${esc(e.voteNum)||'No vote assigned'}</div><span class="tag ${e.type==='Toll'?'toll':''}">${e.type}</span></div>
+      </div>
+    </div>`).join('');
+}
+
+let editingId = null;
+function goDetail(id){
+  const e = getEntries(currentVeh.reg).find(x=>x.id===id);
+  if(!e) return;
+  goCapture();
+  editingId = id;
+  capType = e.type; setType(document.querySelector(`#typeChips .chip[data-t="${e.type}"]`), e.type);
+  $('fDate').value=e.date||''; $('fAmount').value=e.amount||'';
+  $('fStation').value=e.station||''; $('fKm').value=e.km||'';
+  $('fDriver').value=e.driver||''; $('fProject').value=e.project||'';
+  if(e.voteNum) pickVote(e.voteNum, e.voteDesc||''); else clearVote();
+  if(e.slipImage){ photoData=e.slipImage; }
+  $('bDelete').style.display='block';
+}
+
+/* ═══════════ TRIP AUDIT ═══════════ */
+const CHECKLIST_ITEMS = [
+  'HOOTER','IGNITION/KEY + SPARE KEY','ALARM/MOBILISER','DASH LIGHTS',
+  'AIRCON/RADIO/SPEAKER SYSTEM','HANDBRAKE/GEAR SELECTION','LOGBOOK SIGNED FOR EACH SERVICE',
+  'WINDOW WINDER MECHANISM & LOCK','JACK/WHEEL SPANNER/TRIANGLE','SEATS + UPHOLSTERY','ROPES/NETS',
+  'FIRE EXTINGUISHER & DATE OF NEXT SERVICE','CAB GLASS','WIPERS','HEADLIGHTS + BRIGHTS',
+  'INDICATORS + HAZARDS','TAIL LIGHTS + REVERSE LIGHTS','WINDSCREEN (FRONT & REAR)',
+  'DOORSHELLS/EXTERIOR BODYWORK','CANOPY DOOR + WINDOWS','DOOR MIRROR','OUTER DOOR HANDLES',
+  'TYRES + SPARE WHEEL','CANOPY + LOCK','RAILING STRUCTURE','TOW HITCH + PLUG WIRING','AERIAL',
+  'BATTERY + BATTERY GUARD','WATER + OIL'
+];
+const CHECKIN_DEFAULT_RECHECK = ['TYRES + SPARE WHEEL','DOORSHELLS/EXTERIOR BODYWORK','WINDSCREEN (FRONT & REAR)'];
+const WALK_ANGLES = ['Front','Rear','Left side','Right side','Front-left corner','Front-right corner','Rear-left corner','Rear-right corner'];
+const WALK_KEYS = {'Front':'front','Rear':'rear','Left side':'left','Right side':'right','Front-left corner':'fl','Front-right corner':'fr','Rear-left corner':'rl','Rear-right corner':'rr'};
+const WALK_BODY = `<rect x="20" y="10" width="24" height="44" rx="8" fill="none" stroke="currentColor" stroke-opacity=".45" stroke-width="2.5"/><rect x="14" y="16" width="6" height="9" rx="2" fill="currentColor" fill-opacity=".45"/><rect x="44" y="16" width="6" height="9" rx="2" fill="currentColor" fill-opacity=".45"/><rect x="14" y="39" width="6" height="9" rx="2" fill="currentColor" fill-opacity=".45"/><rect x="44" y="39" width="6" height="9" rx="2" fill="currentColor" fill-opacity=".45"/><line x1="24" y1="20" x2="40" y2="20" stroke="currentColor" stroke-opacity=".45" stroke-width="2"/><line x1="24" y1="46" x2="40" y2="46" stroke="currentColor" stroke-opacity=".45" stroke-width="2"/>`;
+const WALK_HILITE = {
+  front: {seg:`<line x1="22" y1="11" x2="42" y2="11" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>`, dot:[32,3]},
+  rear:  {seg:`<line x1="22" y1="53" x2="42" y2="53" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>`, dot:[32,61]},
+  left:  {seg:`<line x1="21" y1="12" x2="21" y2="52" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>`, dot:[8,32]},
+  right: {seg:`<line x1="43" y1="12" x2="43" y2="52" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>`, dot:[56,32]},
+  fl:    {seg:`<path d="M21 20 Q21 11 30 11" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>`, dot:[12,9]},
+  fr:    {seg:`<path d="M34 11 Q43 11 43 20" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>`, dot:[52,9]},
+  rl:    {seg:`<path d="M21 44 Q21 53 30 53" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>`, dot:[12,55]},
+  rr:    {seg:`<path d="M34 53 Q43 53 43 44" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>`, dot:[52,55]}
+};
+function walkIcon(label){
+  const h=WALK_HILITE[WALK_KEYS[label]];
+  return `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">${WALK_BODY}${h.seg}<circle cx="${h.dot[0]}" cy="${h.dot[1]}" r="3" fill="currentColor"/></svg>`;
+}
+let auditWalk = {};
+function renderWalkGrid(){
+  const wrap=$('walkGrid');
+  wrap.innerHTML = WALK_ANGLES.map(a=>{
+    const photo=auditWalk[a];
+    return `<label class="walk-slot${photo?' done':''}">
+      ${photo?`<img src="${photo}"><div class="walk-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div><div class="walk-label-on">${esc(a)}</div>`
+      :`${walkIcon(a)}<span>${esc(a)}</span>`}
+      <input type="file" accept="image/*" capture="environment" style="display:none" onchange="onWalkPhoto(this,'${esc(a)}')">
+    </label>`;
+  }).join('');
+  const n=Object.keys(auditWalk).length;
+  $('walkProgress').textContent = n+' of '+WALK_ANGLES.length+' angles photographed'+(n===WALK_ANGLES.length?' - all done':'');
+}
+async function onWalkPhoto(input, angle){
+  if(!input.files || !input.files[0]) return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    auditWalk[angle]=await compress(e.target.result,1200,0.72);
+    renderWalkGrid();
+  };
+  r.readAsDataURL(input.files[0]);
+}
+function odoAiState(mode,text){
+  $('odoAiBar').classList.add('show');
+  $('odoAiSpin').style.display = mode==='load' ? 'block' : 'none';
+  $('odoAiTx').textContent=text;
+}
+const DAMAGE_CODES = {B:'Broken',C:'Chipped',D:'Dent',M:'Missing',S:'Scratched',K:'Cracked',P:'Paint defect',Z:'Other'};
+
+const getAudits = reg => { try{ return JSON.parse(localStorage.getItem('fb_audits_'+reg) || '[]'); }catch(e){ return []; } };
+const setAudits = (reg,list) => localStorage.setItem('fb_audits_'+reg, JSON.stringify(list));
+function openAuditFor(reg){ return getAudits(reg).find(a=>!a.checkinAt) || null; }
+
+let auditMode='checkout';
+let auditOpenRecord=null;
+let auditItems=[];           // items shown on screen this session
+let auditState={};           // item -> {status, comment, photo, code}
+let auditActiveItem=null;    // item currently expanded, for photo/suggest targeting
+
+function goAudit(){ show('screen-audit'); resetAuditForm(); }
+
+function resetAuditForm(){
+  const reg=currentVeh.reg;
+  $('auditVeh').textContent=reg;
+  $('auditVehSub').textContent=currentVeh.model+' \u00b7 '+currentVeh.base;
+  auditOpenRecord = openAuditFor(reg);
+  auditMode = auditOpenRecord ? 'checkin' : 'checkout';
+  auditState = {}; auditActiveItem=null; auditWalk = {};
+
+  $('odoAiBar').classList.remove('show');
+  $('aComments').value='';
+
+  if(auditMode==='checkout'){
+    $('auditModePill').textContent='Checkout'; $('auditModePill').classList.remove('checkin');
+    $('auditPurposeGroup').style.display='block';
+    $('aDriver').disabled=false; $('aDriver').value='';
+    $('aPurpose').value='';
+    $('aMileageOut').value=''; $('aMileageOut').disabled=false;
+    $('fileOdoOut').disabled=false;
+    $('odoThumbOut').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+    $('odoInRow').style.display='none';
+    $('checklistLabel').textContent='Vehicle checklist';
+    $('walkLabel').textContent='Photo walkaround';
+    $('auditProgress').textContent='Everything defaults to Functional - only tap an item to report a problem';
+    $('bAuditSubmit').textContent='Complete checkout';
+    auditItems = CHECKLIST_ITEMS.slice();
+    auditItems.forEach(it=>{ auditState[it]={status:'Functional', comment:'', photo:null, code:''}; });
+  } else {
+    $('auditModePill').textContent='Return'; $('auditModePill').classList.add('checkin');
+    $('auditPurposeGroup').style.display='none';
+    $('aDriver').value=auditOpenRecord.driver||''; $('aDriver').disabled=true;
+    $('aMileageOut').value=auditOpenRecord.mileageOut||''; $('aMileageOut').disabled=true;
+    $('fileOdoOut').disabled=true;
+    $('odoInRow').style.display='flex';
+    $('aMileageIn').value='';
+    $('odoThumbIn').innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>';
+    $('checklistLabel').textContent='Re-check on return';
+    $('walkLabel').textContent='Return walkaround';
+    $('auditProgress').textContent='Showing items flagged at checkout, plus tyres, bodywork and windscreen';
+    $('bAuditSubmit').textContent='Complete return';
+    const flagged = Object.keys(auditOpenRecord.checklist||{});
+    auditItems = Array.from(new Set([...flagged, ...CHECKIN_DEFAULT_RECHECK]));
+    auditItems.forEach(it=>{
+      const prev=(auditOpenRecord.checklist||{})[it];
+      auditState[it] = prev ? {...prev} : {status:'Functional', comment:'', photo:null, code:''};
+    });
+  }
+  renderFirstAid();
+  renderAuditChecklist();
+  renderWalkGrid();
+}
+
+function renderAuditChecklist(){
+  const wrap=$('auditChecklist');
+  wrap.innerHTML = auditItems.map(item=>{
+    const s=auditState[item];
+    const cls = s.status==='Non-Functional' ? 'nf' : s.status==='Not Present' ? 'np' : 'ok';
+    const open = auditActiveItem===item ? 'show' : '';
+    const codeRow = s.status==='Non-Functional' ? `
+      <div class="chips" style="margin-bottom:10px">
+        ${Object.entries(DAMAGE_CODES).map(([k,v])=>`<button type="button" class="chip${s.code===k?' on':''}" onclick="setAuditCode('${esc(item)}','${k}',event)">${k} - ${v}</button>`).join('')}
+      </div>` : '';
+    return `<div class="aitem">
+      <div class="aitem-head" onclick="toggleAuditItem('${esc(item)}')">
+        <div class="aitem-name">${esc(item)}</div>
+        <div class="aitem-status ${cls}">${s.status==='Functional'?'OK':s.status}</div>
+      </div>
+      <div class="aitem-body ${open}">
+        <div class="aitem-choices">
+          <button type="button" class="chip${s.status==='Functional'?' on':''}" onclick="setAuditStatus('${esc(item)}','Functional',event)">Functional</button>
+          <button type="button" class="chip${s.status==='Non-Functional'?' on':''}" onclick="setAuditStatus('${esc(item)}','Non-Functional',event)">Non-functional</button>
+          <button type="button" class="chip${s.status==='Not Present'?' on':''}" onclick="setAuditStatus('${esc(item)}','Not Present',event)">Not present</button>
+        </div>
+        ${codeRow}
+        <label class="aitem-photo" for="itemPhoto_${idxKey(item)}">
+          ${s.photo?`<img src="${s.photo}">`:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3Z"/><circle cx="12" cy="13" r="3.5"/></svg>`}
+          <span>${s.photo?'Photo attached - tap to replace':'Add a photo of the issue'}</span>
+        </label>
+        <input type="file" id="itemPhoto_${idxKey(item)}" accept="image/*" capture="environment" style="display:none" onchange="onAuditItemPhoto(this,'${esc(item)}')">
+        <textarea class="aitem-comment" placeholder="Comment" oninput="setAuditComment('${esc(item)}',this.value)">${esc(s.comment)}</textarea>
+      </div>
+    </div>`;
+  }).join('');
+}
+function idxKey(item){ return item.replace(/[^a-z0-9]/gi,'_'); }
+function toggleAuditItem(item){ auditActiveItem = auditActiveItem===item ? null : item; renderAuditChecklist(); }
+function setAuditStatus(item,status,ev){ if(ev) ev.stopPropagation(); auditState[item].status=status; if(status!=='Non-Functional') auditState[item].code=''; auditActiveItem=item; renderAuditChecklist(); }
+function setAuditCode(item,code,ev){ if(ev) ev.stopPropagation(); auditState[item].code=code; auditActiveItem=item; renderAuditChecklist(); }
+function setAuditComment(item,val){ auditState[item].comment=val; }
+
+async function onAuditItemPhoto(input,item){
+  if(!input.files || !input.files[0]) return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    const data=await compress(e.target.result,1200,0.72);
+    auditState[item].photo=data;
+    auditActiveItem=item;
+    renderAuditChecklist();
+    if(auditState[item].status==='Non-Functional') suggestDamageCode(item,data);
+  };
+  r.readAsDataURL(input.files[0]);
+}
+async function suggestDamageCode(item,dataUrl){
+  odoAiState('load','Suggesting a damage code...');
+  try{
+    const b64=dataUrl.split(',')[1];
+    const r=await fetch(WORKER_URL,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-6', max_tokens:200,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+          {type:'text',text:`This is a photo of a fleet vehicle defect on the item "${item}". Reply with ONLY a JSON object, no markdown fences: {"code":"one of B,C,D,M,S,K,P,Z","note":"under 12 words describing the defect"}. Codes: B=Broken, C=Chipped, D=Dent, M=Missing, S=Scratched, K=Cracked, P=Paint defect, Z=Other.`}
+        ]}]})
+    });
+    const d=await r.json();
+    const txt=(d.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');
+    const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    if(parsed.code && DAMAGE_CODES[parsed.code]){
+      auditState[item].code=parsed.code;
+      if(!auditState[item].comment) auditState[item].comment=parsed.note||'';
+      renderAuditChecklist();
+    }
+    $('odoAiBar').classList.remove('show');
+  }catch(e){ $('odoAiBar').classList.remove('show'); }
+}
+
+
+function renderFirstAid(){
+  const reg=currentVeh.reg;
+  const last=localStorage.getItem('fb_firstaid_'+reg);
+  const stale = !last || (Date.now()-Number(last)) > 7*24*60*60*1000;
+  $('firstAidStatus').textContent = stale ? 'Check due' : 'Yes';
+  $('firstAidStatus').className = 'aitem-status ' + (stale ? 'np' : 'ok');
+  $('firstAidNote').textContent = last ? ('Last checked '+new Date(Number(last)).toLocaleDateString('en-ZA')) : 'Not checked yet on this device';
+}
+function toggleFirstAid(){
+  localStorage.setItem('fb_firstaid_'+currentVeh.reg, String(Date.now()));
+  renderFirstAid();
+  toast('First aid kit marked checked');
+}
+
+async function onOdoPhoto(input,which){
+  if(!input.files || !input.files[0]) return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    const data=await compress(e.target.result,1200,0.72);
+    const thumb = which==='out' ? $('odoThumbOut') : $('odoThumbIn');
+    thumb.innerHTML = `<img src="${data}">`;
+    odoAiState('load','Reading odometer...');
+    try{
+      const b64=data.split(',')[1];
+      const r2=await fetch(WORKER_URL,{
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({model:'claude-sonnet-4-6', max_tokens:100,
+          messages:[{role:'user',content:[
+            {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+            {type:'text',text:'Read the odometer reading in this photo. Reply with ONLY a JSON object, no markdown fences: {"km":"digits only, or null if not confidently readable"}.'}
+          ]}]})
+      });
+      const d=await r2.json();
+      const txt=(d.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');
+      const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
+      if(parsed.km){
+        const val=String(parsed.km).replace(/[^\d]/g,'');
+        if(which==='out') $('aMileageOut').value=val; else $('aMileageIn').value=val;
+        odoAiState('ok','Odometer read: '+val+' km - check before saving');
+      } else {
+        odoAiState('err','Could not read the odometer - enter it manually');
+      }
+    }catch(err){ odoAiState('err','Could not read the odometer - enter it manually'); }
+  };
+  r.readAsDataURL(input.files[0]);
+}
+
+function submitAudit(){
+  const reg=currentVeh.reg;
+  if(auditMode==='checkout'){
+    const driver=$('aDriver').value.trim(), mOut=$('aMileageOut').value;
+    if(!driver){ toast('Add the driver'); $('aDriver').focus(); return; }
+    if(!mOut){ toast('Add mileage out'); $('aMileageOut').focus(); return; }
+    const walkCount=Object.keys(auditWalk).length;
+    if(walkCount<WALK_ANGLES.length){
+      if(!confirm(`Only ${walkCount} of ${WALK_ANGLES.length} walkaround angles photographed. Submit checkout anyway?`)) return;
+    }
+    const checklist={};
+    auditItems.forEach(it=>{ if(auditState[it].status!=='Functional' || auditState[it].comment || auditState[it].photo) checklist[it]=auditState[it]; });
+    const rec={
+      id: uid(), reg, driver,
+      purpose: $('aPurpose').value.trim(),
+      mileageOut: mOut, checklist,
+      photosOut: {...auditWalk},
+      comments: $('aComments').value.trim(),
+      checkoutAt: Date.now()
+    };
+    const list=getAudits(reg); list.push(rec); setAudits(reg,list);
+    toast('Checkout recorded - have a safe trip');
+  } else {
+    const mIn=$('aMileageIn').value;
+    if(!mIn){ toast('Add mileage in'); $('aMileageIn').focus(); return; }
+    const walkCount=Object.keys(auditWalk).length;
+    if(walkCount<WALK_ANGLES.length){
+      if(!confirm(`Only ${walkCount} of ${WALK_ANGLES.length} return walkaround angles photographed. Submit anyway?`)) return;
+    }
+    const list=getAudits(reg);
+    const i=list.findIndex(a=>a.id===auditOpenRecord.id);
+    if(i>=0){
+      const merged = {...(list[i].checklist||{})};
+      auditItems.forEach(it=>{ if(auditState[it].status!=='Functional' || auditState[it].comment || auditState[it].photo) merged[it]=auditState[it]; else delete merged[it]; });
+      list[i] = {...list[i], mileageIn:mIn, checklistReturn:merged, photosIn:{...auditWalk}, commentsReturn:$('aComments').value.trim(), checkinAt:Date.now()};
+      setAudits(reg,list);
+    }
+    toast('Trip closed out');
+  }
+  goVehicle();
+}
+
+/* ═══════════ CAPTURE + PHOTO + AI ═══════════ */
+function resetCapture(){
+  editingId=null; photoData=null;
+  $('capVeh').textContent=currentVeh.reg;
+  $('aiBar').classList.remove('show');
+  $('fDate').value=new Date().toISOString().slice(0,10); $('fAmount').value='';
+  $('fStation').value=''; $('fKm').value='';
+  $('fDriver').value=''; $('fProject').value='';
+  $('fVote').value=''; clearVote();
+  setType(document.querySelector('#typeChips .chip'),'Fuel');
+  $('bDelete').style.display='none';
+}
+function deleteEntry(){
+  if(!editingId) return;
+  if(!confirm('Delete this slip? This only removes it from FleetBuddy - it does not undo anything already synced to Sheets or Drive.')) return;
+  const reg=currentVeh.reg;
+  const list=getEntries(reg).filter(x=>x.id!==editingId);
+  setEntries(reg, list);
+  toast('Slip deleted');
+  editingId=null;
+  goVehicle();
+}
+function setType(btn,t){ capType=t; document.querySelectorAll('#typeChips .chip').forEach(c=>c.classList.remove('on')); if(btn) btn.classList.add('on'); }
+
+function compress(dataUrl,maxW=1000,q=.72){
+  return new Promise(res=>{
+    const img=new Image();
+    img.onload=()=>{
+      const c=document.createElement('canvas');
+      let w=img.width,h=img.height;
+      if(w>maxW){ h=Math.round(h*maxW/w); w=maxW; }
+      c.width=w; c.height=h;
+      c.getContext('2d').drawImage(img,0,0,w,h);
+      let qq=q,out=c.toDataURL('image/jpeg',qq);
+      while(out.length>280000 && qq>.12){ qq-=.1; out=c.toDataURL('image/jpeg',qq); }
+      res(out);
+    };
+    img.onerror=()=>res(dataUrl);
+    img.src=dataUrl;
+  });
+}
+function onPhoto(input){
+  if(!input.files || !input.files[0]) return;
+  const r=new FileReader();
+  r.onload=async e=>{
+    photoData = await compress(e.target.result, 1400, 0.72);
+    readSlip(photoData);
+  };
+  r.readAsDataURL(input.files[0]);
+}
+function aiState(mode,text){
+  const bar=$('aiBar');
+  bar.classList.add('show');
+  $('aiSpin').style.display = mode==='load' ? 'block' : 'none';
+  $('aiTx').textContent=text;
+}
+async function readSlip(data){
+  aiState('load','Reading slip...');
+  const controller=new AbortController();
+  const timeoutId=setTimeout(()=>controller.abort(),25000);
+  try{
+    const small=await compress(data);
+    const b64=small.split(',')[1];
+    const r=await fetch(WORKER_URL,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      signal:controller.signal,
+      body:JSON.stringify({
+        model:'claude-sonnet-4-6', max_tokens:500,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+          {type:'text',text:`Read this South African fuel or toll slip for a vehicle fleet reconciliation. Reply with ONLY a JSON object, no markdown fences, no commentary:
+{"type":"Fuel or Toll","station":"clean merchant/station name, max 40 chars","amount":"total paid, digits and decimal point only, no R symbol","date":"YYYY-MM-DD if visible else null","km":"odometer reading if visible on the slip, digits only, else null"}
+
+Do NOT attempt to identify or guess a driver name, project, or person, even if handwriting or a name appears on the slip - leave that entirely to the human reviewing it. Use null for any field you cannot read confidently.`}
+        ]}]
+      })
+    });
+    const d=await r.json();
+    clearTimeout(timeoutId);
+    if(d.error){ aiState('err', d.error.message || 'Could not read that slip. Fill it in manually.'); return; }
+    const txt=(d.content||[]).filter(c=>c.type==='text').map(c=>c.text).join('');
+    const parsed=JSON.parse(txt.replace(/```json|```/g,'').trim());
+    if(parsed.type==='Toll') setType(document.querySelector('#typeChips .chip[data-t="Toll"]'),'Toll');
+    else setType(document.querySelector('#typeChips .chip[data-t="Fuel"]'),'Fuel');
+    if(parsed.station) $('fStation').value=parsed.station;
+    if(parsed.amount)  $('fAmount').value=String(parsed.amount).replace(/[^\d.]/g,'');
+    if(parsed.date)    $('fDate').value=parsed.date;
+    if(parsed.km)      $('fKm').value=String(parsed.km).replace(/[^\d]/g,'');
+    const bits=[parsed.station, parsed.amount?'R'+parsed.amount:null].filter(Boolean);
+    aiState('ok', bits.length ? 'Found: '+bits.join(' \u00b7 ')+' - check before saving' : 'Slip read - check fields below');
+  }catch(err){
+    clearTimeout(timeoutId);
+    aiState('err', err.name==='AbortError' ? 'Took too long - fill it in manually.' : 'Could not read that slip automatically. Fill it in manually.');
+  }
+}
+
+function saveEntry(){
+  const amount=$('fAmount').value, date=$('fDate').value;
+  if(!amount || parseFloat(amount)<=0){ toast('Add the amount'); $('fAmount').focus(); return; }
+  if(!date){ toast('Add the date'); $('fDate').focus(); return; }
+  const list=getEntries(currentVeh.reg);
+  const existing = editingId ? list.find(x=>x.id===editingId) : null;
+  const photoChanged = !existing || existing.slipImage !== photoData;
+  const e={
+    id: editingId || uid(),
+    type:capType, date, amount,
+    station:$('fStation').value.trim(),
+    km:$('fKm').value,
+    driver:$('fDriver').value.trim(),
+    project:$('fProject').value.trim(),
+    voteNum: voteChosen?voteChosen.number:'',
+    voteDesc: voteChosen?voteChosen.description:'',
+    slipImage: photoData || null,
+    createdAt: Date.now()
+  };
+  if(photoChanged){ e.slipDriveId=null; e.slipViewLink=null; }
+  if(editingId){
+    const i=list.findIndex(x=>x.id===editingId);
+    if(i>=0) list[i]={...list[i], ...e};
+  } else {
+    list.push(e);
+  }
+  setEntries(currentVeh.reg, list);
+  toast(editingId ? 'Slip updated' : 'Slip saved');
+  editingId=null;
+  goVehicle();
+}
+
+/* ═══════════ DRIVE + SHEETS ═══════════ */
+async function driveIdIsUsable(id){
+  try{
+    const r=await gFetch(`https://www.googleapis.com/drive/v3/files/${id}?fields=id,trashed`);
+    if(!r.ok) return false;
+    const d=await r.json();
+    return !!d.id && !d.trashed;
+  }catch(e){ return false; }
+}
+async function driveFolder(path){
+  let parent='root';
+  for(const name of path){
+    const key='fb_fld_'+name+'_'+parent;
+    let id=localStorage.getItem(key);
+    if(id==='undefined'||id==='null'||id===''){ id=null; localStorage.removeItem(key); }
+    if(id && !(await driveIdIsUsable(id))){ id=null; localStorage.removeItem(key); }
+    if(!id){
+      const q=`name='${name.replace(/'/g,"\\'")}' and mimeType='application/vnd.google-apps.folder' and '${parent}' in parents and trashed=false`;
+      const r=await gFetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&fields=files(id)`);
+      const d=await r.json();
+      if(d.files && d.files.length) id=d.files[0].id;
+      else{
+        const c=await gFetch('https://www.googleapis.com/drive/v3/files',{method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({name,mimeType:'application/vnd.google-apps.folder',parents:[parent]})});
+        const created=await c.json();
+        id=created.id||null;
+        if(!id) throw new Error('Could not create Drive folder "'+name+'": '+(created.error?.message||'unknown error'));
+      }
+      localStorage.setItem(key,id);
+    }
+    parent=id;
+  }
+  return parent;
+}
+async function uploadRawFile(file, folderId){
+  const fd=new FormData();
+  fd.append('metadata', new Blob([JSON.stringify({name:file.name,parents:[folderId]})],{type:'application/json'}));
+  fd.append('file', file);
+  const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id',
+    {method:'POST', headers:{Authorization:'Bearer '+token}, body:fd});
+  const d=await r.json();
+  if(d.id) return {ok:true,id:d.id};
+  return {ok:false, reason:d.error?.message||('HTTP '+r.status)};
+}
+async function uploadSlipImage(e, folderId){
+  if(!e.slipImage) return {ok:false, reason:'no-image'};
+  const compressed=await compress(e.slipImage,1600,0.78);
+  const b64=compressed.split(',')[1];
+  const bin=atob(b64), arr=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  const name=`${e.date||'slip'}_${e.type}_${e.id}.jpg`.replace(/[^a-z0-9_.\-]/gi,'_');
+  const fd=new FormData();
+  fd.append('metadata', new Blob([JSON.stringify({name,parents:[folderId]})],{type:'application/json'}));
+  fd.append('file', new Blob([arr],{type:'image/jpeg'}));
+  try{
+    const r=await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id,webViewLink',
+      {method:'POST', headers:{Authorization:'Bearer '+token}, body:fd});
+    const d=await r.json();
+    if(d.id) return {ok:true, id:d.id, link:d.webViewLink||`https://drive.google.com/file/d/${d.id}/view`};
+    return {ok:false, reason:d.error?.message||('HTTP '+r.status)};
+  }catch(err){ return {ok:false, reason:err.message}; }
+}
+const ROW_LABELS = ['DATE :','STATION:','KM READING:','FUEL / OIL:','TOLL:','TOTAL AMOUNT:','DRIVER :','VOTE NUMBER :','RECEIPT :'];
+function cardColumnOf(e){
+  const amt = parseFloat(e.amount)||0;
+  const fuel = e.type==='Fuel' ? amt.toFixed(2) : '';
+  const toll = e.type==='Toll' ? amt.toFixed(2) : '';
+  const receiptLabel = 'RECEIPT : ' + (e.slipViewLink ? 'View photo' : (e.slipImage ? 'Not yet uploaded' : ''));
+  const receipt = e.slipViewLink ? `=HYPERLINK("${e.slipViewLink}","${receiptLabel}")` : receiptLabel;
+  return [
+    `${ROW_LABELS[0]} ${e.date||''}`.trim(),
+    `${ROW_LABELS[1]} ${e.station||''}`.trim(),
+    `${ROW_LABELS[2]} ${e.km||''}`.trim(),
+    `${ROW_LABELS[3]} ${fuel}`.trim(),
+    `${ROW_LABELS[4]} ${toll}`.trim(),
+    `${ROW_LABELS[5]} ${amt.toFixed(2)}`.trim(),
+    `${ROW_LABELS[6]} ${e.driver||''}`.trim(),
+    `${ROW_LABELS[7]} ${e.voteNum||''}`.trim(),
+    receipt
+  ];
+}
+function buildCardGrid(reg, ym, list){
+  const [year, monthNum] = ym.split('-');
+  const monthName = new Date(Number(year), Number(monthNum)-1, 1).toLocaleDateString('en-ZA',{month:'long'});
+  const title = `PETROL SLIPS THE MONTH OF ${monthName.toUpperCase()} YEAR ${year} REG NO ${reg}`;
+  const cols = list.map(cardColumnOf); // each: array of 9 combined "LABEL : value" cells, one column per slip
+  const grid = [[title]];
+  grid.push(['']);
+  for(let r=0;r<9;r++){
+    grid.push(cols.map(c=>c[r]));
+  }
+  return grid;
+}
+async function ensureVehicleSheet(reg, ym){
+  const key='fb_sheet_'+reg+'_'+ym;
+  let id=localStorage.getItem(key);
+  if(id==='undefined'||id==='null'||id===''){ id=null; localStorage.removeItem(key); }
+  if(id && !(await driveIdIsUsable(id))){ id=null; localStorage.removeItem(key); }
+  if(id) return id;
+  const folder=await driveFolder(['FleetBuddy', reg, ym]);
+  const r=await gFetch('https://sheets.googleapis.com/v4/spreadsheets',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({properties:{title:`FleetBuddy ${reg} ${ym}`},sheets:[{properties:{title:'Recon'}}]})});
+  const created=await r.json();
+  id=created.spreadsheetId||null;
+  if(!id) throw new Error('Could not create the Google Sheet: '+(created.error?.message||'unknown error'));
+  localStorage.setItem(key,id);
+  await gFetch(`https://www.googleapis.com/drive/v3/files/${id}?addParents=${folder}&removeParents=root&fields=id`,{method:'PATCH'});
+  return id;
+}
+async function writeVehicleSheet(reg, ym, list){
+  const id=await ensureVehicleSheet(reg, ym);
+  // clear a generous range - column count grows with number of slips, so clear wide
+  await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/Recon!A1:BZ50:clear`,{method:'POST'});
+  const grid=buildCardGrid(reg, ym, list);
+  const lastCol = Math.max(list.length, 1); // one column per slip, no separate label column
+  const colLetter = n => { let s=''; while(n>0){ const m=(n-1)%26; s=String.fromCharCode(65+m)+s; n=Math.floor((n-1)/26); } return s; };
+  const range = `Recon!A1:${colLetter(lastCol)}${grid.length}`;
+  await gFetch(`https://sheets.googleapis.com/v4/spreadsheets/${id}/values/${range}?valueInputOption=USER_ENTERED`,
+    {method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({values:grid})});
+  return id;
+}
+
+async function uploadPendingSlipPhotos(reg){
+  const all=getEntries(reg);
+  const todo=all.filter(e=>e.slipImage && !e.slipDriveId);
+  if(!todo.length) return {uploaded:0, failed:0, firstFail:null};
+  const byMonth={};
+  todo.forEach(e=>{ const ym=(e.date||'').slice(0,7) || new Date().toISOString().slice(0,7); (byMonth[ym]=byMonth[ym]||[]).push(e); });
+  let n=0, failed=0, firstFail=null;
+  for(const ym of Object.keys(byMonth)){
+    const folder=await driveFolder(['FleetBuddy', reg, ym, 'slips']);
+    for(const e of byMonth[ym]){
+      const res=await uploadSlipImage(e, folder);
+      if(res.ok){ e.slipDriveId=res.id; e.slipViewLink=res.link; n++; }
+      else { failed++; if(!firstFail) firstFail=res.reason; }
+    }
+  }
+  setEntries(reg, all);
+  return {uploaded:n, failed, firstFail};
+}
+
+async function syncVehicle(){
+  if(!await ensureToken()) return;
+  const b=$('bSync'); b.disabled=true; b.textContent='\u2026';
+  $('syncStatus').textContent='Syncing\u2026';
+  try{
+    const reg=currentVeh.reg;
+    // upload any pending slip photos first, so receipt links are ready before the sheet is written
+    await uploadPendingSlipPhotos(reg);
+    const all=getEntries(reg);
+    // group by year-month so late/out-of-order uploads still land in the right tab
+    const byMonth={};
+    all.forEach(e=>{ const ym=(e.date||'').slice(0,7)||'unknown'; (byMonth[ym]=byMonth[ym]||[]).push(e); });
+    let months=0;
+    for(const ym of Object.keys(byMonth)){
+      const list=[...byMonth[ym]].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+      await writeVehicleSheet(reg, ym, list);
+      months++;
+    }
+    // upload any pending monthly report files (Daily Movement / Vehicle Analysis)
+    const d=getDocs(reg);
+    const ym=new Date().toISOString().slice(0,7);
+    const pending=window._pendingReportFiles||{};
+    for(const kind of ['movement','analysis']){
+      const fkey=reg+'_'+kind;
+      if(pending[fkey] && d[kind] && !d[kind].uploaded){
+        const folder=await driveFolder(['FleetBuddy', reg, ym, 'reports']);
+        const res=await uploadRawFile(pending[fkey], folder);
+        if(res.ok){ d[kind].uploaded=true; setDocs(reg,d); delete pending[fkey]; }
+      }
+    }
+    $('syncStatus').textContent='Last synced '+new Date().toLocaleTimeString('en-ZA',{hour:'2-digit',minute:'2-digit'});
+    toast(months+' month'+(months===1?'':'s')+' synced to Sheets');
+    renderVehicle();
+  }catch(e){
+    $('syncStatus').textContent='Sync failed';
+    toast('Sync failed - '+e.message);
+  }
+  b.disabled=false; b.textContent='Sync';
+}
+
+async function uploadSlipPhotos(){
+  if(!await ensureToken()) return;
+  const b=$('bUpload'); b.disabled=true; b.textContent='\u2026';
+  try{
+    const reg=currentVeh.reg;
+    const res=await uploadPendingSlipPhotos(reg);
+    if(res.uploaded===0 && res.failed===0) toast('No new slip photos to upload');
+    else if(res.uploaded>0 && res.failed===0) toast(res.uploaded+' slip photos uploaded to Drive');
+    else if(res.uploaded>0) toast(`${res.uploaded} uploaded, ${res.failed} failed - ${res.firstFail}`);
+    else toast('Upload failed - '+(res.firstFail||'unknown error'));
+  }catch(e){ toast('Upload failed - '+e.message); }
+  b.disabled=false; b.textContent='Upload';
+}
+
+/* ═══════════ BOOT ═══════════ */
+initAuth();
+
+</script>
+</body>
+</html>
