@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="FleetBuddy">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#F1F2F4">
+<meta name="theme-color" content="#E7E9EC">
 <style>
   :root{
     --page:#F1F2F4; --ink:#1C1F24; --ink-2:#5B616A; --ink-3:#8B929B;
@@ -22,6 +22,7 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
+  html{background:var(--beige)}
   body{
     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif;
     color:var(--ink); background:var(--page);
@@ -29,13 +30,10 @@
     -webkit-font-smoothing:antialiased; letter-spacing:-.011em;
   }
   .app-footer{background:#3A4048;margin-top:8px}
-  .footer-top{display:flex;align-items:center;justify-content:center;gap:16px;padding:22px 22px 14px}
+  .footer-top{display:flex;align-items:center;justify-content:space-between;padding:22px 26px 14px}
   .footer-mark{width:34px;height:34px;border-radius:9px;overflow:hidden;flex-shrink:0}
   .footer-mark img{width:100%;height:100%;object-fit:cover}
-  .footer-div{width:1px;align-self:stretch;background:rgba(255,255,255,.18)}
-  .footer-wt{display:flex;align-items:center;gap:10px}
-  .footer-wt img.ring{height:28px;width:auto;display:block}
-  .footer-wt img.word{height:19px;width:auto;display:block}
+  .footer-wt img.ring{height:30px;width:auto;display:block}
   .app-footer .footer-copy{text-align:center;padding:0 22px calc(18px + env(safe-area-inset-bottom));font-size:11px;font-weight:650;letter-spacing:.04em;color:rgba(255,255,255,.55)}
   .screen{display:none;padding:0 22px calc(40px + env(safe-area-inset-bottom))}
   .screen.active{display:block;animation:fade .26s ease}
@@ -724,8 +722,7 @@
 <div class="app-footer" style="display:none">
   <div class="footer-top">
     <div class="footer-mark"><img src="favicon.png" alt="FleetBuddy"></div>
-    <div class="footer-div"></div>
-    <div class="footer-wt"><img class="ring" src="wildtrust-ring.png" alt=""><img class="word" src="wildtrust-wordmark.png" alt="WildTrust"></div>
+    <div class="footer-wt"><img class="ring" src="wildtrust-ring.png" alt="WildTrust"></div>
   </div>
   <div class="footer-copy">© 2026 WILDOCEANS, IT</div>
 </div>
