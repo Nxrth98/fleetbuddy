@@ -29,6 +29,7 @@
     color:var(--ink); background:var(--page);
     min-height:100vh; max-width:460px; margin:0 auto;
     -webkit-font-smoothing:antialiased; letter-spacing:-.011em;
+    display:flex; flex-direction:column;
   }
   @media (min-width:481px){
     body{
@@ -48,7 +49,7 @@
   .footer-wt-word{font-size:12.5px;font-weight:800;letter-spacing:.05em;color:var(--card)}
   .footer-wt-word span{font-weight:500;color:var(--foot-grey-txt)}
   .footer-copy{font-size:11px;color:var(--foot-grey-txt);letter-spacing:.01em}
-  .screen{display:none;padding:0 22px calc(40px + env(safe-area-inset-bottom))}
+  .screen{display:none;padding:0 22px calc(40px + env(safe-area-inset-bottom));flex:1 0 auto}
   .screen.active{display:block;animation:fade .26s ease}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
