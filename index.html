@@ -19,23 +19,35 @@
     --card:#FFFFFF; --amber:#A66A0C; --red:#B4362A; --wo-blue:#3B6FE0;
     --r-lg:22px; --r-md:16px; --r-sm:12px; --pill:10px;
     --sh:0 2px 10px rgba(20,22,30,.06); --sh-lg:0 14px 34px rgba(20,22,30,.14);
+    --foot-grey:#3A4048; --foot-grey-txt:#9AA1A8;
   }
   *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-  html,body{height:100%}
-  html{background:var(--beige)}
+  html,body{min-height:100%}
+  html{background:var(--beige);color-scheme:light;scrollbar-gutter:stable}
   body{
     font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,system-ui,sans-serif;
     color:var(--ink); background:var(--page);
     min-height:100vh; max-width:460px; margin:0 auto;
     -webkit-font-smoothing:antialiased; letter-spacing:-.011em;
   }
-  .app-footer{background:#3A4048}
-  .footer-top{display:flex;align-items:center;justify-content:space-between;padding:22px 26px 14px;position:relative}
-  .footer-top::after{content:'';position:absolute;left:50%;top:6px;bottom:6px;width:1px;background:rgba(255,255,255,.16);transform:translateX(-50%)}
-  .footer-mark{width:34px;height:34px;border-radius:9px;overflow:hidden;flex-shrink:0}
-  .footer-mark img{width:100%;height:100%;object-fit:cover}
-  .footer-wt img.ring{height:30px;width:auto;display:block}
-  .app-footer .footer-copy{text-align:center;padding:0 22px calc(18px + env(safe-area-inset-bottom));font-size:11px;font-weight:650;letter-spacing:.04em;color:rgba(255,255,255,.55)}
+  @media (min-width:481px){
+    body{
+      border-left:1px solid rgba(20,22,26,.14);
+      border-right:1px solid rgba(20,22,26,.14);
+      box-shadow:0 0 46px rgba(20,22,26,.07);
+    }
+  }
+  .app-footer{background:var(--foot-grey);width:100%;display:flex;flex-direction:column;align-items:center;gap:10px;padding:20px 22px calc(16px + env(safe-area-inset-bottom))}
+  #screen-auth.active ~ .app-footer{display:none}
+  .footer-row{position:relative;display:flex;align-items:center;justify-content:space-between;width:100%}
+  .footer-side{display:flex;align-items:center}
+  .footer-div{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:1px;height:20px;background:rgba(255,255,255,.18)}
+  .footer-mark{width:26px;height:26px;border-radius:7px;object-fit:cover;display:block}
+  .footer-wt{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .footer-wt-icon{height:26px;width:auto;object-fit:contain;display:block}
+  .footer-wt-word{font-size:12.5px;font-weight:800;letter-spacing:.05em;color:var(--card)}
+  .footer-wt-word span{font-weight:500;color:var(--foot-grey-txt)}
+  .footer-copy{font-size:11px;color:var(--foot-grey-txt);letter-spacing:.01em}
   .screen{display:none;padding:0 22px calc(40px + env(safe-area-inset-bottom))}
   .screen.active{display:block;animation:fade .26s ease}
   @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
@@ -720,12 +732,13 @@
   </div>
 </div>
 
-<div class="app-footer" style="display:none">
-  <div class="footer-top">
-    <div class="footer-mark"><img src="favicon.png" alt="FleetBuddy"></div>
-    <div class="footer-wt"><img class="ring" src="wildtrust-ring.png" alt="WildTrust"></div>
+<div class="app-footer">
+  <div class="footer-row">
+    <div class="footer-side"><img class="footer-mark" src="favicon.png" alt="FleetBuddy"></div>
+    <div class="footer-div"></div>
+    <div class="footer-wt"><img class="footer-wt-icon" src="wildtrust-ring.png" alt="WildTrust"><div class="footer-wt-word">WILD<span>TRUST</span></div></div>
   </div>
-  <div class="footer-copy">© 2026 WILDOCEANS, IT</div>
+  <p class="footer-copy">© 2026 WILDOCEANS, IT</p>
 </div>
 
 <script>
@@ -800,8 +813,6 @@ function toast(msg){
 function show(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
-  const footer = document.querySelector('.app-footer');
-  if(footer) footer.style.display = (id === 'screen-auth') ? 'none' : '';
   window.scrollTo(0,0);
 }
 
